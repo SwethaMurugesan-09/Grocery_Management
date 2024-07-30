@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Hero.css';
 import allproducts from '../Assets/allproducts';
-
+import {Link} from 'react-router-dom'
 const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(8);
@@ -35,7 +35,7 @@ const Hero = () => {
         <div className="hero-item">
           {visibleProducts.map((item, index) => (
             <div key={index} className="product-item">
-              <img src={item.image} alt={item.name} className="product-image" />
+             <Link to={`/product/${item.id}`}><img src={item.image} alt={item.name} className="product-image" /></Link>
               <span className="product-name">{item.name}</span>
               <span className="product-price">${item.price}</span>
             </div>

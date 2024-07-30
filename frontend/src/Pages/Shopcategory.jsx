@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import './CSS/Shopcategory.css';
 import { Shopcontext } from '../Context/Shopcontext';
-
+import {Link} from 'react-router-dom'
 const Shopcategory = ({ category }) => {
   const { products } = useContext(Shopcontext);
   
@@ -21,7 +21,7 @@ const Shopcategory = ({ category }) => {
       <div className="shopcategory-items">
         {filteredProducts.map(product => (
           <div key={product.id} className="product-item">
-            <img src={product.image} alt={product.name} className="product-image"/>
+              <Link to={`/product/${product.id}`}><img src={product.image} alt={product.name} className="product-image"/></Link>
             <span className="product-name">{product.name}</span>
             <span className="product-price">${product.price}</span>
           </div>
