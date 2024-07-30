@@ -1,0 +1,110 @@
+.hero {
+    padding: 20px;
+    text-align: center;
+    max-width: 1200px; 
+    margin: 0 auto; 
+  }
+  
+  .search-bar {
+    margin: 20px 0;
+    padding: 10px;
+    width: 80%;
+    max-width: 400px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .hero-item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .product-item {
+    margin: 20px; 
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 200px; 
+    text-align: center;
+  }
+  
+  .product-image {
+    max-width: 100%;
+    height: auto; 
+  }
+  
+  .product-name {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  .product-price {
+    display: block;
+    margin-top: 5px;
+    color: green;
+  }
+  
+  .show-more-button {
+    margin: 20px 0;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .show-more-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .contact-section {
+    margin-top: 40px;
+    text-align: center;
+  }
+  
+  .contact-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .submit-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background-color: #218838;
+  }
+  

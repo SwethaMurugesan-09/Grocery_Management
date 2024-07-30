@@ -1,0 +1,40 @@
+.shop-category {
+    padding: 20px;
+  }
+  
+  .shopcategory-indexSort {
+    margin-bottom: 20px;
+  }
+  
+  .shopcategory-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .product-item {
+    margin: 20px; 
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 200px; 
+    text-align: center;
+  }
+  
+  .product-image {
+    max-width: 100%;
+    height: auto; 
+  }
+  
+  .product-name {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  .product-price {
+    display: block;
+    margin-top: 5px;
+    color: green;
+  }
+  
