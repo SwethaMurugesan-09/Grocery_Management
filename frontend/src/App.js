@@ -5,9 +5,13 @@ import Shopcategory from './Pages/Shopcategory';
 import Product from './Pages/Product';
 import Cart from './Pages/Cart';
 import Login from './Pages/Login';
+import ShopProvider from './Context/Shopcon';
+
+
 function App() {
   return (
     <div>
+        <ShopProvider>
       <BrowserRouter>
       <Navbar />
       <Routes>
@@ -22,6 +26,8 @@ function App() {
           <Route path='/login' element={<Login />}/>
       </Routes>
       </BrowserRouter>
+
+    </ShopProvider>
     </div>
   );
 }

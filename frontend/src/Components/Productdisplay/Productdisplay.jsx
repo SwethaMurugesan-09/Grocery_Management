@@ -1,10 +1,12 @@
 import React, { useState, useContext } from 'react';
 import './Productdisplay.css';
 import { Shopcontext } from '../../Context/Shopcontext';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 
 const Productdisplay = (props) => {
   const { product } = props;
   const { addToCart } = useContext(Shopcontext);
+  const navigate = useNavigate(); // Initialize useNavigate
   const weightOptions = [
     { label: '250 g', value: 0.25 },
     { label: '500 g', value: 0.5 },
@@ -21,6 +23,22 @@ const Productdisplay = (props) => {
 
   const handleQuantityChange = (event) => {
     setQuantity(parseInt(event.target.value, 10));
+  };
+
+  const handleAddToCart = () => {
+    // Create a product object with the necessary information
+    const productToAdd = {
+      id: product.id,
+      name: product.name,
+      weight: selectedWeight,
+      quantity: quantity,
+    };
+
+    // Add the product to the cart
+    addToCart(productToAdd);
+
+    // Navigate to the cart page
+    navigate('/cart');
   };
 
   return (
@@ -51,7 +69,7 @@ const Productdisplay = (props) => {
         </div>
         <button 
           className="add-to-cart" 
-          onClick={() => addToCart(product.id)}
+          onClick={handleAddToCart} // Use the new function
         >
           Add to Cart
         </button>

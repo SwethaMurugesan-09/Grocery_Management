@@ -1,16 +1,33 @@
+
+
 import React, { createContext, useState } from 'react';
-import allproducts from '../Components/Assets/allproducts';
 
 export const Shopcontext = createContext();
 
-const ShopProvider = ({ children }) => {
-  const [products] = useState(allproducts);
+export const ShopProvider = ({ children }) => {
+  const [cart, setCart] = useState([]);
+
+  const addToCart = (product) => {
+    setCart((prevCart) => {
+ 
+      const existingProductIndex = prevCart.findIndex(item => item.id === product.id);
+
+      if (existingProductIndex !== -1) {
+
+        const updatedCart = [...prevCart];
+        updatedCart[existingProductIndex].quantity += product.quantity; // Adjust as needed for weight and quantity
+        return updatedCart;
+      }
+
+
+      return [...prevCart, { ...product, quantity: product.quantity }];
+    });
+  };
 
   return (
-    <Shopcontext.Provider value={{ products }}>
+    <Shopcontext.Provider value={{ cart, addToCart }}>
       {children}
     </Shopcontext.Provider>
   );
 };
-
-export default ShopProvider;
+export default ShopProvider
