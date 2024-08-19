@@ -1,0 +1,108 @@
+/* Cart.css */
+
+.cart-page {
+    padding: 30px;
+    max-width: 900px;
+    margin: 30px auto;
+    background-color: #fdfdfd;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .cart-page h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    color: #444;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+  }
+  
+  .cart-page ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .cart-page li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease-in-out;
+  }
+  
+  .cart-page li:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  .cart-page li div {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+  }
+  
+  .cart-page li span {
+    font-size: 1.3em;
+    color: #333;
+    flex-grow: 1;
+  }
+  
+  .cart-page select,
+  .cart-page input[type="number"] {
+    padding: 8px;
+    font-size: 1.1em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fafafa;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  
+  .cart-page select:focus,
+  .cart-page input[type="number"]:focus {
+    border-color: #bbb;
+    background-color: #f0f0f0;
+  }
+  
+  .cart-page select:hover,
+  .cart-page input[type="number"]:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .cart-page button {
+    padding: 8px 15px;
+    font-size: 1.1em;
+    color: #fff;
+    background-color: #ff4d4d;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  
+  .cart-page button:hover {
+    background-color: #e60000;
+    transform: translateY(-2px);
+  }
+  
+  .cart-page button:active {
+    transform: translateY(0);
+  }
+  
+  .cart-page p {
+    text-align: center;
+    font-size: 1.3em;
+    color: #777;
+    margin-top: 50px;
+  }
+  
+  .cart-page .price {
+    font-size: 1.3em;
+    color: #444;
+    font-weight: bold;
+  }
+  

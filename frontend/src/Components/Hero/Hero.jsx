@@ -37,7 +37,7 @@ const Hero = () => {
             <div key={index} className="product-item">
              <Link to={`/product/${item.id}`}><img src={item.image} alt={item.name} className="product-image" /></Link>
               <span className="product-name">{item.name}</span>
-              <span className="product-price">${item.price}</span>
+              <span className="product-price">${item.pricePerKg}</span>
             </div>
           ))}
         </div>

@@ -1,12 +1,13 @@
-import React, { useState, useContext } from 'react';
+// Productdisplay.jsx
+import React, { useState, useContext, useEffect } from 'react';
 import './Productdisplay.css';
 import { Shopcontext } from '../../Context/Shopcontext';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import { useNavigate } from 'react-router-dom';
 
 const Productdisplay = (props) => {
   const { product } = props;
   const { addToCart } = useContext(Shopcontext);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const weightOptions = [
     { label: '250 g', value: 0.25 },
     { label: '500 g', value: 0.5 },
@@ -16,28 +17,33 @@ const Productdisplay = (props) => {
 
   const [selectedWeight, setSelectedWeight] = useState(weightOptions[0].value);
   const [quantity, setQuantity] = useState(1);
+  const [price, setPrice] = useState(product.pricePerKg * weightOptions[0].value * 1);
 
   const handleWeightChange = (event) => {
-    setSelectedWeight(parseFloat(event.target.value));
+    const newWeight = parseFloat(event.target.value);
+    setSelectedWeight(newWeight);
   };
 
   const handleQuantityChange = (event) => {
-    setQuantity(parseInt(event.target.value, 10));
+    const newQuantity = parseInt(event.target.value, 10);
+    setQuantity(newQuantity);
   };
 
+  useEffect(() => {
+    // Calculate the price whenever selectedWeight or quantity changes
+    setPrice(product.pricePerKg * selectedWeight * quantity);
+  }, [selectedWeight, quantity]);
+
   const handleAddToCart = () => {
-    // Create a product object with the necessary information
     const productToAdd = {
       id: product.id,
       name: product.name,
       weight: selectedWeight,
       quantity: quantity,
+      pricePerKg: product.pricePerKg, // Include pricePerKg
     };
 
-    // Add the product to the cart
     addToCart(productToAdd);
-
-    // Navigate to the cart page
     navigate('/cart');
   };
 
@@ -67,9 +73,12 @@ const Productdisplay = (props) => {
             onChange={handleQuantityChange} 
           />
         </div>
+        <div className="price">
+          <h2>Price: ${price.toFixed(2)}</h2>
+        </div>
         <button 
           className="add-to-cart" 
-          onClick={handleAddToCart} // Use the new function
+          onClick={handleAddToCart}
         >
           Add to Cart
         </button>

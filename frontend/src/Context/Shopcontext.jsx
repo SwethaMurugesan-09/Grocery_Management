@@ -1,33 +1,48 @@
-
-
+// Shopcontext.jsx
 import React, { createContext, useState } from 'react';
 
 export const Shopcontext = createContext();
 
-export const ShopProvider = ({ children }) => {
+const ShopProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
   const addToCart = (product) => {
-    setCart((prevCart) => {
- 
-      const existingProductIndex = prevCart.findIndex(item => item.id === product.id);
+    setCart((prevCart) => [...prevCart, product]);
+  };
 
-      if (existingProductIndex !== -1) {
+  const updateCartItemWeight = (itemId, newWeight) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === itemId ? { ...item, weight: newWeight } : item
+      )
+    );
+  };
 
-        const updatedCart = [...prevCart];
-        updatedCart[existingProductIndex].quantity += product.quantity; // Adjust as needed for weight and quantity
-        return updatedCart;
-      }
+  const updateCartItemQuantity = (itemId, newQuantity) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
 
-
-      return [...prevCart, { ...product, quantity: product.quantity }];
-    });
+  const removeFromCart = (itemId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
   };
 
   return (
-    <Shopcontext.Provider value={{ cart, addToCart }}>
+    <Shopcontext.Provider
+      value={{
+        cart,
+        addToCart,
+        updateCartItemWeight,
+        updateCartItemQuantity,
+        removeFromCart,
+      }}
+    >
       {children}
     </Shopcontext.Provider>
   );
 };
-export default ShopProvider
+
+export default ShopProvider;

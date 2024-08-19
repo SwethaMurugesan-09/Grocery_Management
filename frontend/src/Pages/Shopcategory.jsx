@@ -1,7 +1,7 @@
-// Shopcategory.jsx
+
 import React, { useContext } from 'react';
 import './CSS/Shopcategory.css';
-import { Shopcontext } from '../Context/Shopcon'; // Ensure correct import
+import { Shopcontext } from '../Context/Shopcon';
 import { Link } from 'react-router-dom';
 
 const Shopcategory = ({ category }) => {
@@ -24,7 +24,7 @@ const Shopcategory = ({ category }) => {
               <img src={product.image} alt={product.name} className="product-image" />
             </Link>
             <span className="product-name">{product.name}</span>
-            <span className="product-price">${product.price}</span>
+            <span className="product-price">${product.pricePerKg}</span>
           </div>
         ))}
       </div>
