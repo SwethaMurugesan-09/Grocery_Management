@@ -14,8 +14,6 @@ app.use(cors());
 const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/grocery";
 
 mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     serverSelectionTimeoutMS: 30000 // Increased timeout for server selection
 })
 .then(() => console.log("Database connected successfully"))
@@ -112,6 +110,23 @@ app.post('/addproduct', async (req, res) => {
     }
 });
 
+app.post('/removeproduct',async(req,res)=>
+{
+    await Product.findOneAndDelete({id:req.body.id});
+    console.log("removed");
+    res.json({
+        success:true,
+        name:req.body.name
+    }
+    )
+})
+
+app.get('/allproducts',async(req,res)=>
+{
+    let products=await Product.find({});
+    console.log("all products fetched");
+    res.send(products);
+})
 // Start the server
 app.listen(port, (error) => {
     if (!error) {
