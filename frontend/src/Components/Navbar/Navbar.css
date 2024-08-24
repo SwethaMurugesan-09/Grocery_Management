@@ -1,7 +1,7 @@
 .navbar{
     display: flex;
     justify-content: space-around;
-    padding: 16px;
+    padding: 7px;
     box-shadow: 0 1px 3px -2px black;
 }
 .nav{
@@ -11,7 +11,7 @@
 }
 .nav p {
     color: #171717;
-    font-size: 38px;
+    font-size: 28px;
     font-weight: 600;
   }
   
@@ -54,8 +54,8 @@
     gap: 45px;
   }
   .nav-login button{
-    width: 130px;
-    height: 70px;
+    width: 100px;
+    height: 50px;
     outline: none;
     border: 1px solid #7a7a7a;
     border-radius: 75px;
@@ -66,5 +66,25 @@
     cursor: pointer;
   }
   .nav-login button:active{
+    background: #f3f3f3;
+  }
+  .nav-cart{
+    display: flex;
+    align-items: center;
+    gap: 45px;
+  }
+  .nav-cart button{
+    width: 100px;
+    height: 50px;
+    outline: none;
+    border: 1px solid #7a7a7a;
+    border-radius: 75px;
+    color: #515151;
+    font-size: 20px;
+    font-weight: 500;
+    background: white;
+    cursor: pointer;
+  }
+  .nav-cart button:active{
     background: #f3f3f3;
   }
