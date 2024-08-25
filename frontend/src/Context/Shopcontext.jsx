@@ -1,4 +1,3 @@
-// Shopcontext.jsx
 import React, { createContext, useState } from 'react';
 
 export const Shopcontext = createContext();
