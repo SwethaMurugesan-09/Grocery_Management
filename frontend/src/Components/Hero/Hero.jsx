@@ -4,11 +4,11 @@ import allproducts from '../Assets/allproducts';
 import {Link} from 'react-router-dom'
 const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [visibleCount, setVisibleCount] = useState(20);
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
-    setVisibleCount(8); 
+    setVisibleCount(20); 
   };
 
   const handleShowMore = () => {
