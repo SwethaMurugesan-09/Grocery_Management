@@ -1,21 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Hero.css';
-import allproducts from '../Assets/allproducts';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom';
+
 const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(20);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch products from the backend API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/products'); // Adjust the API endpoint as needed
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
-    setVisibleCount(20); 
+    setVisibleCount(20);
   };
 
   const handleShowMore = () => {
     setVisibleCount((prevCount) => prevCount + 8);
   };
 
-  const filteredProducts = allproducts.filter((product) =>
+  const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -32,15 +55,23 @@ const Hero = () => {
           onChange={handleSearch}
           className="search-bar"
         />
-        <div className="hero-item">
-          {visibleProducts.map((item, index) => (
-            <div key={index} className="product-item">
-             <Link to={`/product/${item.id}`}><img src={item.image} alt={item.name} className="product-image" /></Link>
-              <span className="product-name">{item.name}</span>
-              <span className="product-price">${item.pricePerKg}</span>
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <p>Loading products...</p>
+        ) : error ? (
+          <p>Error: {error}</p>
+        ) : (
+          <div className="hero-item">
+            {visibleProducts.map((item, index) => (
+              <div key={index} className="product-item">
+                <Link to={`/product/${item._id}`}>
+                  <img src={item.image} alt={item.name} className="product-image" />
+                </Link>
+                <span className="product-name">{item.name}</span>
+                <span className="product-price">${item.pricePerKg}</span>
+              </div>
+            ))}
+          </div>
+        )}
         {visibleCount < filteredProducts.length && (
           <button onClick={handleShowMore} className="show-more-button">
             Show More
