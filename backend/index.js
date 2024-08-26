@@ -38,7 +38,7 @@ app.get("/", (req, res) => {
 });
 const upload = multer({ storage: storage });
 
-app.post("/upload", upload.single('image'), (req, res) => {
+app.post("/upload", upload.single('product'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ success: 0, message: "No file uploaded" });
     }
@@ -110,9 +110,10 @@ const Users = mongoose.model('Users', {
 app.post('/addproduct', async (req, res) => {
     try {
         const { name, image, category, pricePerKg } = req.body;
-        if (!name || !image || !category || !pricePerKg) {
-            return res.status(400).json({ success: false, message: "All fields are required" });
-        }
+if (!name || !image || !category || !pricePerKg) {
+    return res.status(400).json({ success: false, message: "All fields are required" });
+}
+
 
         let products = await Product.find({});
         let id;

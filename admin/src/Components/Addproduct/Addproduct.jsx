@@ -1,16 +1,16 @@
-
 import React, { useState } from 'react';
 import './Addproduct.css';
 import upload from '../../assets/upload.png';
 
 const AddProduct = () => {
-    const [image, setImage] = useState(null);
+    const [image, setImage] = useState(false);
     const [productDetails, setProductDetails] = useState({
         name: "",
         image: "",
         category: "",
-        price: ""
-    });
+        pricePerKg: "" // Ensure this is filled in the form
+    });    
+    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -21,61 +21,43 @@ const AddProduct = () => {
     const changeHandler = (e) => {
         setProductDetails({ ...productDetails, [e.target.name]: e.target.value });
     };
+    
 
     const addProduct = async () => {
-        setLoading(true);
+       
+        console.log(productDetails);
+        let responseData;
+        let product = productDetails;
         setError(null);
         let formData = new FormData();
-        if (image) {
-            formData.append('image', image);
-        }
-
-        formData.append('name', productDetails.name);
-        formData.append('category', productDetails.category);
-        formData.append('pricePerKg', productDetails.price);
-
-        try {
-            const uploadResponse = await fetch('http://localhost:5000/upload', {
+        formData.append('product', image);
+        
+        await fetch('http://localhost:5000/upload', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+            },
+            body: formData,
+        }).then((resp) => resp.json()).then((data) => { responseData = data; });
+    
+        if (responseData.success) {
+            product.image = responseData.image_url;
+            console.log(product);
+            await fetch('http://localhost:5000/addproduct', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(product),
+            }).then((resp) => resp.json()).then((data) => {
+                data.success ? alert("Product added") : alert("Failed");
             });
-
-            if (!uploadResponse.ok) {
-                throw new Error('Image upload failed');
-            }
-
-            const uploadData = await uploadResponse.json();
-            if (uploadData.success) {
-                const addProductResponse = await fetch('http://localhost:5000/addproduct', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: productDetails.name,
-                        image: uploadData.image_url,
-                        category: productDetails.category,
-                        pricePerKg: productDetails.price
-                    })
-                });
-
-                if (!addProductResponse.ok) {
-                    throw new Error('Failed to add product');
-                }
-
-                const addProductData = await addProductResponse.json();
-                if (addProductData.success) {
-                    alert('Product added successfully');
-                } else {
-                    throw new Error('Failed to add product');
-                }
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
+    
         }
     };
+    
+
+    
 
     return (
         <div className='addproduct'>
@@ -97,7 +79,7 @@ const AddProduct = () => {
                         value={productDetails.price}
                         onChange={changeHandler}
                         type='text'
-                        name="price"
+                        name="pricePerKg"
                         placeholder='Type here'
                     />
                 </div>
@@ -118,7 +100,7 @@ const AddProduct = () => {
             <div className="addproduct-itemfield">
                 <label htmlFor='file-input'>
                     <img
-                        src={image ? URL.createObjectURL(image) : upload}
+                        src={image?URL.createObjectURL(image):upload}
                         className='addproduct-img'
                         alt="Upload"
                     />
