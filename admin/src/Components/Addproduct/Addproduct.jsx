@@ -76,7 +76,7 @@ const AddProduct = () => {
                 <div className="addproduct-itemfield">
                     <p>Price</p>
                     <input
-                        value={productDetails.price}
+                        value={productDetails.pricePerKg}
                         onChange={changeHandler}
                         type='text'
                         name="pricePerKg"
@@ -92,6 +92,7 @@ const AddProduct = () => {
                     name="category"
                     className='add-product-selector'
                 >
+                    <option>--select--</option>
                     <option value="vegetables">Vegetables</option>
                     <option value="fruits">Fruits</option>
                     <option value="dryfruits">Dryfruits</option>
