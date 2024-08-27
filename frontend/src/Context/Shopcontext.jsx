@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 export const Shopcontext = createContext();
 
@@ -25,6 +25,16 @@ const ShopProvider = ({ children }) => {
     );
   };
 
+  const [all_product, setAllProduct] = useState([]);
+
+  // Fetch products and update the state
+  useEffect(() => {
+    fetch('http://localhost:5000/allproducts')
+      .then(response => response.json())
+      .then(data => setAllProduct(data))
+      .catch(error => console.error('Error fetching products:', error));
+  }, []);
+
   const removeFromCart = (itemId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
   };
@@ -37,6 +47,7 @@ const ShopProvider = ({ children }) => {
         updateCartItemWeight,
         updateCartItemQuantity,
         removeFromCart,
+        all_product, // Include all_product in the context value
       }}
     >
       {children}

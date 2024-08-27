@@ -82,6 +82,9 @@ const Product = mongoose.model("Product", {
 });
 
 
+
+
+
 // Endpoint to add a product
 app.post('/addproduct', async (req, res) => {
     try {
@@ -231,15 +234,29 @@ app.post('/removeproduct', async (req, res) => {
     }
 });
 // Get all products
+// Get all products with optional category filter
 app.get('/allproducts', async (req, res) => {
     try {
-        let products = await Product.find({});
+        const { category } = req.query; // Get category from query params
+        let query = {};
+        
+        if (category && category !== 'all') {
+            query.category = category; // Filter by category if provided
+        }
+
+        let products = await Product.find(query);
         res.json(products);
     } catch (err) {
         console.error("Error fetching products:", err);
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
+
+
+app.post('/addtocart',async(req,res)=>{
+    console.log(req.body);
+})
+
 
 // Start the server
 app.listen(port, (error) => {

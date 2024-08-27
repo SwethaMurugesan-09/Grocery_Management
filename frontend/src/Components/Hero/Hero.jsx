@@ -13,7 +13,7 @@ const Hero = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products'); // Adjust the API endpoint as needed
+        const response = await fetch('http://localhost:5000/allproducts'); // Adjust the API endpoint as needed
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }
@@ -63,9 +63,10 @@ const Hero = () => {
           <div className="hero-item">
             {visibleProducts.map((item, index) => (
               <div key={index} className="product-item">
-                <Link to={`/product/${item._id}`}>
-                  <img src={item.image} alt={item.name} className="product-image" />
-                </Link>
+              <Link to={`/product/${item._id}`} state={{ product: item }}>
+               <img src={item.image} alt={item.name} className="product-image" />
+              </Link>
+
                 <span className="product-name">{item.name}</span>
                 <span className="product-price">${item.pricePerKg}</span>
               </div>

@@ -1,13 +1,12 @@
-// Productdisplay.jsx
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './Productdisplay.css';
 import { Shopcontext } from '../../Context/Shopcontext';
 import { useNavigate } from 'react-router-dom';
 
-const Productdisplay = (props) => {
-  const { product } = props;
-  const { addToCart } = useContext(Shopcontext);
+const Productdisplay = ({ product }) => {
   const navigate = useNavigate();
+  const { addToCart } = useContext(Shopcontext);
+
   const weightOptions = [
     { label: '250 g', value: 0.25 },
     { label: '500 g', value: 0.5 },
@@ -17,7 +16,17 @@ const Productdisplay = (props) => {
 
   const [selectedWeight, setSelectedWeight] = useState(weightOptions[0].value);
   const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(product.pricePerKg * weightOptions[0].value * 1);
+  const [price, setPrice] = useState(0);
+
+  useEffect(() => {
+    if (product) {
+      setPrice(product.pricePerKg * selectedWeight * quantity);
+    }
+  }, [product, selectedWeight, quantity]);
+
+  if (!product) {
+    return <div>Error: Product data is missing!</div>;
+  }
 
   const handleWeightChange = (event) => {
     const newWeight = parseFloat(event.target.value);
@@ -29,18 +38,13 @@ const Productdisplay = (props) => {
     setQuantity(newQuantity);
   };
 
-  useEffect(() => {
-    // Calculate the price whenever selectedWeight or quantity changes
-    setPrice(product.pricePerKg * selectedWeight * quantity);
-  }, [selectedWeight, quantity]);
-
   const handleAddToCart = () => {
     const productToAdd = {
       id: product.id,
       name: product.name,
       weight: selectedWeight,
       quantity: quantity,
-      pricePerKg: product.pricePerKg, // Include pricePerKg
+      pricePerKg: product.pricePerKg,
     };
 
     addToCart(productToAdd);
