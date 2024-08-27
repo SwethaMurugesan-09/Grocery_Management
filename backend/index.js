@@ -81,30 +81,6 @@ const Product = mongoose.model("Product", {
     }
 });
 
-// Users Schema
-const Users = mongoose.model('Users', {
-    name: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    cartData: {
-        type: Object,
-        default: {}
-    },
-    date: {
-        type: Date,
-        default: Date.now,
-    }
-});
 
 // Endpoint to add a product
 app.post('/addproduct', async (req, res) => {
@@ -143,49 +119,105 @@ if (!name || !image || !category || !pricePerKg) {
     }
 });
 
+
+// Users Schema
+const Users = mongoose.model('Users', {
+    name: {
+        type: String,
+    },
+    email: {
+        type: String,
+        unique: true,
+    },
+    password: {
+        type: String,
+    },
+    cartData: {
+        type: Object,
+        default: Date.now,
+    },
+    date: {
+        type: Date,
+        default: Date.now,
+    }
+});
+
 // Signup Endpoint
 app.post('/signup', async (req, res) => {
     try {
-        let { name, email, password } = req.body;
-
-        if (!name || !email || !password) {
-            return res.status(400).json({ success: false, message: "All fields are required" });
-        }
-
-        let check = await Users.findOne({ email });
+        // Check if the user already exists
+        let check = await Users.findOne({ email: req.body.email });
         if (check) {
-            return res.status(400).json({ success: false, errors: "User already exists" });
+            return res.status(400).json({ success: false, errors: 'User already exists' });
         }
 
+        // Create default cart data
         let cart = {};
         for (let i = 0; i < 300; i++) {
             cart[i] = 0;
         }
 
+        // Create new user
         const user = new Users({
-            name,
-            email,
-            password,
+            name: req.body.username,
+            email: req.body.email,
+            password: req.body.password,
             cartData: cart,
         });
 
+        // Save user to database
         await user.save();
 
+        // Create JWT token
         const data = {
             user: {
-                id: user.id
-            }
+                id: user.id,
+            },
         };
 
         const token = jwt.sign(data, 'secret_ecom');
         res.json({ success: true, token });
     } catch (err) {
-        console.error("Error during signup:", err);
-        res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
+        console.error('Error during signup:', err);
+        res.status(500).json({ success: false, message: 'Internal Server Error', error: err.message });
     }
 });
 
-// Remove product endpoint
+// Login Endpoint
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check if the user exists
+        const user = await Users.findOne({ email: email });
+        if (!user) {
+            return res.status(400).json({ success: false, errors: 'User does not exist. Please create an account.' });
+        }
+
+        // Check if the password matches
+        if (user.password !== password) {
+            return res.status(400).json({ success: false, errors: 'Incorrect password.' });
+        }
+
+        // Create JWT token
+        const data = {
+            user: {
+                id: user.id,
+            },
+        };
+
+        const token = jwt.sign(data, 'secret_ecom');
+        res.status(200).json({ success: true, token });
+    } catch (err) {
+        console.error('Error during login:', err);
+        res.status(500).json({ success: false, message: 'Internal Server Error', error: err.message });
+    }
+});
+
+
+
+
+
 app.post('/removeproduct', async (req, res) => {
     try {
         await Product.findOneAndDelete({ id: req.body.id });
@@ -198,33 +230,6 @@ app.post('/removeproduct', async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
-
-// Login Endpoint
-app.post('/login', async (req, res) => {
-    try {
-        let user = await Users.findOne({ email: req.body.email });
-        if (user) {
-            const passCompare = req.body.password === user.password;
-            if (passCompare) {
-                const data = {
-                    user: {
-                        id: user.id
-                    }
-                };
-                const token = jwt.sign(data, 'secret');
-                res.json({ success: true, token });
-            } else {
-                res.status(400).json({ success: false, errors: "Wrong password" });
-            }
-        } else {
-            res.status(400).json({ success: false, errors: "Wrong email id" });
-        }
-    } catch (err) {
-        console.error("Error during login:", err);
-        res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
-    }
-});
-
 // Get all products
 app.get('/allproducts', async (req, res) => {
     try {

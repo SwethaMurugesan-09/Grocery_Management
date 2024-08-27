@@ -52,7 +52,7 @@ const Listproduct = () => {
             <div className="listproduct-format-main">
               <img src={product.image} alt={product.name} className='listproduct-img' />
               <p>{product.name}</p>
-              <p>${product.price}</p>
+              <p>${product.pricePerKg}</p>
               <p>{product.category}</p>
               <img 
                 onClick={() => removeProduct(product.id)} 
