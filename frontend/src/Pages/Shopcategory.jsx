@@ -1,12 +1,17 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import './CSS/Shopcategory.css';
 import { Shopcontext } from '../Context/Shopcon';
 import { Link } from 'react-router-dom';
 
 const Shopcategory = ({ category }) => {
-  const { products } = useContext(Shopcontext);
+  const { all_product, fetchProducts } = useContext(Shopcontext);
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(20);
+
+  useEffect(() => {
+    console.log('Fetching products for category:', category);
+    fetchProducts(category);  // Fetch products based on the category
+  }, [category]);
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
@@ -17,14 +22,16 @@ const Shopcategory = ({ category }) => {
     setVisibleCount((prevCount) => prevCount + 8);
   };
 
-  if (!products) {
-    return <div>Loading...</div>;
+  if (!all_product || all_product.length === 0) {
+    return <div>No products found.</div>;
   }
 
-  const filteredProducts = products.filter((product) =>
+  const filteredProducts = all_product.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  ).filter(product => category === 'all' || product.category === category);
+);
 
+  console.log('Filtered Products:', filteredProducts);
+  
   return (
     <div className='shop-category'>
       <input 

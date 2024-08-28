@@ -233,7 +233,6 @@ app.post('/removeproduct', async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
-// Get all products
 // Get all products with optional category filter
 app.get('/allproducts', async (req, res) => {
     try {
@@ -256,6 +255,11 @@ app.get('/allproducts', async (req, res) => {
 app.post('/addtocart',async(req,res)=>{
     console.log(req.body);
 })
+
+
+
+
+
 
 
 // Start the server
