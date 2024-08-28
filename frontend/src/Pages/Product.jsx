@@ -8,11 +8,12 @@ const Product = () => {
   const { all_product } = useContext(Shopcontext);
   const { productId } = useParams();
 
+  // Check if all_product is defined and an array
   if (!all_product || !Array.isArray(all_product)) {
     return <div>Error: Product data is unavailable!</div>;
   }
 
-  const product = all_product.find((e) => e._id === productId);
+  const product=all_product.find((e)=> e.id===Number(productId)||e._id === productId);
 
   if (!product) {
     return <div>Error: Product not found!</div>;
@@ -25,6 +26,5 @@ const Product = () => {
     </div>
   );
 };
-
 
 export default Product;
