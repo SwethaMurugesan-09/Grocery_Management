@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../Assets/logo.avif';  // Or '../Assets/logo.avif' if that's the correct folder name
 import './Navbar.css';
 
 const Navbar = () => {
@@ -8,7 +9,7 @@ const Navbar = () => {
   return (
     <div className="navbar">
       <div className="nav">
-        <img src="/path/to/logo.png" alt="Logo" /> {/* Replace with your logo path */}
+        <img src={logo} alt="Logo" /> 
         <p>Grocery Management</p>
       </div>
       <div className="nav-menu">
