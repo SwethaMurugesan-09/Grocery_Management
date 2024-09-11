@@ -1,10 +1,10 @@
-
 import React, { createContext, useState, useEffect } from 'react';
 
 export const Shopcontext = createContext();
 
 const ShopProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [all_product, setAllProduct] = useState([]);
 
   const addToCart = (product) => {
     setCart((prevCart) => [...prevCart, product]);
@@ -26,19 +26,25 @@ const ShopProvider = ({ children }) => {
     );
   };
 
-  const [all_product, setAllProduct] = useState([]);
-
-  // Fetch products and update the state
-  useEffect(() => {
-    fetch('http://localhost:5000/allproducts')
-      .then(response => response.json())
-      .then(data => setAllProduct(data))
-      .catch(error => console.error('Error fetching products:', error));
-  }, []);
-
   const removeFromCart = (itemId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
   };
+
+  const fetchProducts = async (category) => {
+    try {
+      const url = category ? `http://localhost:5000/allproducts?category=${category}` : `http://localhost:5000/allproducts`;
+      const response = await fetch(url);
+      const data = await response.json();
+      console.log('Fetched Products:', data);
+      setAllProduct(data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts(); 
+  }, []);
 
   return (
     <Shopcontext.Provider
@@ -48,7 +54,8 @@ const ShopProvider = ({ children }) => {
         updateCartItemWeight,
         updateCartItemQuantity,
         removeFromCart,
-        all_product, // Include all_product in the context value
+        all_product,
+        fetchProducts,  
       }}
     >
       {children}
