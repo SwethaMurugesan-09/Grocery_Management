@@ -1,23 +1,26 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; 
 import './Breadcrumbs.css';
 import arrowicon from '../Assets/arrow.png';
 
 const Breadcrumbs = ({ product }) => {
-  // Ensure the product and its properties are defined
   if (!product || !product.category || !product.name) {
     return (
       <div className='breadcrum'>
-        Home <img src={arrowicon} alt="arrow" /> SHOP
+        <Link to="/">Home</Link>
+        <img src={arrowicon} alt="arrow" /> 
+        <Link to="/shop">SHOP</Link> {/* Fallback SHOP link */}
       </div>
     );
   }
 
   return (
     <div className='breadcrum'>
-      Home <img src={arrowicon} alt="arrow" /> 
-      SHOP <img src={arrowicon} alt="arrow" /> 
-      {product.category} <img src={arrowicon} alt="arrow" /> 
-      {product.name}
+      <Link to="/">Home</Link> 
+      <img src={arrowicon} alt="arrow" /> 
+      <Link to={`/shopcategory/${product.category.toLowerCase()}`}>
+        {product.category}
+      </Link> 
     </div>
   );
 };

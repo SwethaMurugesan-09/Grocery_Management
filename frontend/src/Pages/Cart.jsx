@@ -1,7 +1,7 @@
-// CartPage.jsx
 import React, { useContext } from 'react';
 import { Shopcontext } from '../Context/Shopcontext';
 import './CSS/Cart.css';
+
 const CartPage = () => {
   const {
     cart,
@@ -28,7 +28,10 @@ const CartPage = () => {
   };
 
   const handleRemoveFromCart = (itemId) => {
-    removeFromCart(itemId);
+    const confirmed = window.confirm("Are you sure you want to remove this product from the cart?");
+    if (confirmed) {
+      removeFromCart(itemId);
+    }
   };
 
   const calculatePrice = (item) => {
@@ -47,6 +50,7 @@ const CartPage = () => {
           {cart.map((item) => (
             <li key={item.id}>
               <div>
+                <img src={item.image} alt={item.name} />
                 <span>{item.name}</span>
                 <select
                   value={item.weight}
@@ -65,8 +69,7 @@ const CartPage = () => {
                   onChange={(e) => handleQuantityChange(item.id, e)}
                 />
                 <span>
-                  Price: $
-                  {calculatePrice(item).toFixed(2)}
+                  Price: ${calculatePrice(item).toFixed(2)}
                 </span>
                 <button onClick={() => handleRemoveFromCart(item.id)}>
                   Remove

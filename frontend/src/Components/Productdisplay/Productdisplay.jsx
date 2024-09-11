@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import './Productdisplay.css';
 import { Shopcontext } from '../../Context/Shopcontext';
-import { useNavigate } from 'react-router-dom';
 
 const Productdisplay = ({ product }) => {
-  const navigate = useNavigate();
-  const { addToCart } = useContext(Shopcontext);
+  const { addToCart, cart, updateCartItemQuantity, removeFromCart } = useContext(Shopcontext);
 
   const weightOptions = [
     { label: '250 g', value: 0.25 },
@@ -17,16 +15,17 @@ const Productdisplay = ({ product }) => {
   const [selectedWeight, setSelectedWeight] = useState(weightOptions[0].value);
   const [quantity, setQuantity] = useState(1);
   const [price, setPrice] = useState(0);
+  const [isInCart, setIsInCart] = useState(false); // Tracks if the product is in the cart
+
+  // Find the product in the cart, if it exists
+  const cartItem = cart.find(item => item.id === product.id && item.weight === selectedWeight);
 
   useEffect(() => {
     if (product) {
       setPrice(product.pricePerKg * selectedWeight * quantity);
+      setIsInCart(!!cartItem); // Update isInCart if the product is found in the cart
     }
-  }, [product, selectedWeight, quantity]);
-
-  if (!product) {
-    return <div>Error: Product data is missing!</div>;
-  }
+  }, [product, selectedWeight, quantity, cartItem]);
 
   const handleWeightChange = (event) => {
     const newWeight = parseFloat(event.target.value);
@@ -41,6 +40,7 @@ const Productdisplay = ({ product }) => {
   const handleAddToCart = () => {
     const productToAdd = {
       id: product.id,
+      image: product.image,
       name: product.name,
       weight: selectedWeight,
       quantity: quantity,
@@ -48,7 +48,23 @@ const Productdisplay = ({ product }) => {
     };
 
     addToCart(productToAdd);
-    navigate('/cart');
+    setIsInCart(true);
+    alert("Product added to cart successfully!");
+  };
+
+  const handleIncreaseQuantity = () => {
+    if (cartItem) {
+      updateCartItemQuantity(cartItem.id, cartItem.quantity + 1);
+    }
+  };
+
+  const handleDecreaseQuantity = () => {
+    if (cartItem && cartItem.quantity > 1) {
+      updateCartItemQuantity(cartItem.id, cartItem.quantity - 1);
+    } else if (cartItem && cartItem.quantity === 1) {
+      removeFromCart(cartItem.id);
+      setIsInCart(false);
+    }
   };
 
   return (
@@ -67,25 +83,24 @@ const Productdisplay = ({ product }) => {
             ))}
           </select>
         </div>
-        <div className="quantity">
-          <label htmlFor="quantity">Quantity:</label>
-          <input 
-            type="number" 
-            id="quantity" 
-            value={quantity} 
-            min="1" 
-            onChange={handleQuantityChange} 
-          />
-        </div>
         <div className="price">
           <h2>Price: ${price.toFixed(2)}</h2>
         </div>
-        <button 
-          className="add-to-cart" 
-          onClick={handleAddToCart}
-        >
-          Add to Cart
-        </button>
+
+        {isInCart ? (
+          <div className="cart-controls">
+            <button onClick={handleDecreaseQuantity}>-</button>
+            <span>{cartItem ? cartItem.quantity : quantity}</span>
+            <button onClick={handleIncreaseQuantity}>+</button>
+          </div>
+        ) : (
+          <button 
+            className="add-to-cart" 
+            onClick={handleAddToCart}
+          >
+            Add to Cart
+          </button>
+        )}
       </div>
     </div>
   );
