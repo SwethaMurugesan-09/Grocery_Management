@@ -4,10 +4,11 @@ import { Shopcontext } from '../Context/Shopcontext'; // Adjust the import path
 import { Link } from 'react-router-dom';
 
 const Shopcategory = ({ category }) => {
-  const { all_product, fetchProducts, addToCart } = useContext(Shopcontext);
+  const { all_product, fetchProducts, addToCart, updateCartItemQuantity } = useContext(Shopcontext);
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(20);
   const [selectedWeight, setSelectedWeight] = useState({});
+  const [cartQuantities, setCartQuantities] = useState({});
 
   const weightOptions = [
     { label: '250 g', value: 0.25 },
@@ -44,7 +45,34 @@ const Shopcategory = ({ category }) => {
       quantity: 1,
     };
     addToCart(productToAdd);
-    alert(`${product.name} added to cart!`);
+
+    // Update cart quantity for the added product
+    setCartQuantities((prev) => ({ ...prev, [product._id]: 1 }));
+  };
+
+  const handleIncreaseQuantity = (productId) => {
+    const newQuantity = (cartQuantities[productId] || 0) + 1;
+    setCartQuantities((prev) => ({
+      ...prev,
+      [productId]: newQuantity,
+    }));
+    updateCartItemQuantity(productId, newQuantity);
+  };
+
+  const handleDecreaseQuantity = (productId) => {
+    const newQuantity = (cartQuantities[productId] || 1) - 1;
+    if (newQuantity < 1) {
+      setCartQuantities((prev) => {
+        const { [productId]: _, ...rest } = prev;
+        return rest;
+      });
+    } else {
+      setCartQuantities((prev) => ({
+        ...prev,
+        [productId]: newQuantity,
+      }));
+    }
+    updateCartItemQuantity(productId, newQuantity);
   };
 
   if (!all_product || all_product.length === 0) {
@@ -68,12 +96,9 @@ const Shopcategory = ({ category }) => {
       <div className="shopcategory-items">
         {filteredProducts.slice(0, visibleCount).map(product => (
           <div key={product._id} className="product-item">
-            <Link to={`/product/${product._id}`}>
               <img src={product.image} alt={product.name} className="product-image" />
-            </Link>
+ 
             <span className="product-name">{product.name}</span>
-            <span className="product-price">${(product.pricePerKg * (selectedWeight[product._id] || 1)).toFixed(2)}</span>
-
             <div className="product-details">
               <label htmlFor="weight">Select Weight:</label>
               <select
@@ -86,12 +111,21 @@ const Shopcategory = ({ category }) => {
                 ))}
               </select>
             </div>
-            <button
-              className="add-to-cart"
-              onClick={() => handleAddToCart(product)}
-            >
-              Add to Cart
-            </button>
+                <div>Price:<span className="product-price">${(product.pricePerKg * (selectedWeight[product._id] || 1)).toFixed(2)}</span>                </div>
+            {cartQuantities[product._id] ? (
+              <div className="quantity-controls">
+                <button onClick={() => handleDecreaseQuantity(product._id)}>-</button>
+                <span>{cartQuantities[product._id]}</span>
+                <button onClick={() => handleIncreaseQuantity(product._id)}>+</button>
+              </div>
+            ) : (
+              <button
+                className="add-to-cart"
+                onClick={() => handleAddToCart(product)}
+              >
+                Add to Cart
+              </button>
+            )}
           </div>
         ))}
       </div>
