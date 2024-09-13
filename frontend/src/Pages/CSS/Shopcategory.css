@@ -5,7 +5,10 @@
   .shopcategory-indexSort {
     margin-bottom: 20px;
   }
-  
+  .search-input{
+    justify-content: center;
+    align-items: center;
+  }
   .shopcategory-items {
     display: flex;
     flex-wrap: wrap;
@@ -35,6 +38,6 @@
   .product-price {
     display: block;
     margin-top: 5px;
-    color: green;
+    color: rgb(0, 110, 0);
   }
   
