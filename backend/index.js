@@ -1,3 +1,4 @@
+require('dotenv').config(); // Import and configure dotenv
 const port = 5000;
 const express = require('express');
 const app = express();
@@ -10,7 +11,12 @@ const cors = require("cors");
 // Middleware
 app.use(express.json());
 app.use(cors());
-mongoose.connect("mongodb+srv://Swetha_MK:Swetha0945@cluster0.5yxvbja.mongodb.net/grocery")
+
+// Connect to MongoDB using the environment variable
+mongoose.connect(process.env.MONGODB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
     .then(() => console.log("Database connected successfully"))
     .catch(err => console.error("Database connection error:", err));
 
@@ -28,6 +34,7 @@ const storage = multer.diskStorage({
 app.get("/", (req, res) => {
     res.send("Express app is running");
 });
+
 const upload = multer({ storage: storage });
 
 app.post("/upload", upload.single('product'), (req, res) => {
@@ -39,7 +46,6 @@ app.post("/upload", upload.single('product'), (req, res) => {
         image_url: `http://localhost:${port}/images/${req.file.filename}`
     });
 });
-
 
 // Schema for creating products
 const Product = mongoose.model("Product", {
@@ -73,18 +79,13 @@ const Product = mongoose.model("Product", {
     }
 });
 
-
-
-
-
 // Endpoint to add a product
 app.post('/addproduct', async (req, res) => {
     try {
         const { name, image, category, pricePerKg } = req.body;
-if (!name || !image || !category || !pricePerKg) {
-    return res.status(400).json({ success: false, message: "All fields are required" });
-}
-
+        if (!name || !image || !category || !pricePerKg) {
+            return res.status(400).json({ success: false, message: "All fields are required" });
+        }
 
         let products = await Product.find({});
         let id;
@@ -113,7 +114,6 @@ if (!name || !image || !category || !pricePerKg) {
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
-
 
 // Users Schema
 const Users = mongoose.model('Users', {
@@ -209,10 +209,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-
-
-
-
 app.post('/removeproduct', async (req, res) => {
     try {
         await Product.findOneAndDelete({ id: req.body.id });
@@ -225,6 +221,7 @@ app.post('/removeproduct', async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
+
 // Get all products with optional category filter
 app.get('/allproducts', async (req, res) => {
     try {
@@ -243,16 +240,9 @@ app.get('/allproducts', async (req, res) => {
     }
 });
 
-
-app.post('/addtocart',async(req,res)=>{
+app.post('/addtocart', async (req, res) => {
     console.log(req.body);
-})
-
-
-
-
-
-
+});
 
 // Start the server
 app.listen(port, (error) => {
