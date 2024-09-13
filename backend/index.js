@@ -10,15 +10,7 @@ const cors = require("cors");
 // Middleware
 app.use(express.json());
 app.use(cors());
-
-// Database connection with enhanced error handling
-const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/grocery";
-
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 30000 // Increased timeout for server selection
-})
+mongoose.connect("mongodb+srv://Swetha_MK:Swetha0945@cluster0.5yxvbja.mongodb.net/grocery")
     .then(() => console.log("Database connected successfully"))
     .catch(err => console.error("Database connection error:", err));
 
