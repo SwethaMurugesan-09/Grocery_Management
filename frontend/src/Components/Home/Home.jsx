@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import './Home.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Shopcontext } from '../../Context/Shopcontext'; // Adjust the import path
 
 const Hero = () => {
@@ -12,6 +12,7 @@ const Hero = () => {
   const [error, setError] = useState(null);
   const [selectedWeight, setSelectedWeight] = useState({}); // Track weight selection for each product
   const [cartQuantities, setCartQuantities] = useState({}); // Track quantity for each product in cart
+  const navigate = useNavigate(); // for navigation
 
   const weightOptions = [
     { label: '250 g', value: 0.25 },
@@ -20,7 +21,6 @@ const Hero = () => {
     { label: '2 kg', value: 2 }
   ];
 
-  // Fetch products from the backend API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -53,20 +53,30 @@ const Hero = () => {
     setSelectedWeight((prev) => ({ ...prev, [productId]: parseFloat(event.target.value) }));
   };
 
+  // Check authentication
+  const isAuthenticated = () => {
+    return !!localStorage.getItem('auth-token');
+  };
+
   const handleAddToCart = (product) => {
-    const weight = selectedWeight[product._id] || 1;
-    const productToAdd = {
-      id: product._id,
-      name: product.name,
-      image: product.image,
-      pricePerKg: product.pricePerKg,
-      weight: weight,
-      quantity: 1, // Default quantity when added to cart
-    };
-    addToCart(productToAdd);
-    
-    // Update cart quantity for the added product
-    setCartQuantities((prev) => ({ ...prev, [product._id]: 1 }));
+    if (!isAuthenticated()) {
+      alert('You need to be logged in to add products to the cart.');
+      navigate('/login'); // Redirect to login page
+    } else {
+      const weight = selectedWeight[product._id] || 1;
+      const productToAdd = {
+        id: product._id,
+        name: product.name,
+        image: product.image,
+        pricePerKg: product.pricePerKg,
+        weight: weight,
+        quantity: 1, // Default quantity when added to cart
+      };
+      addToCart(productToAdd);
+
+      // Update cart quantity for the added product
+      setCartQuantities((prev) => ({ ...prev, [product._id]: 1 }));
+    }
   };
 
   const handleIncreaseQuantity = (productId) => {

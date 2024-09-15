@@ -40,44 +40,73 @@ const CartPage = () => {
     return isNaN(price) ? 0 : price;
   };
 
+  const calculateSubtotal = () => {
+    return cart.reduce((acc, item) => acc + calculatePrice(item), 0).toFixed(2);
+  };
+
   return (
     <div className="cart-page">
       <h1>Shopping Cart</h1>
       {cart.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
-        <ul>
-          {cart.map((item) => (
-            <li key={item.id}>
+        <>
+          <ul className="cart-pages">
+            {cart.map((item) => (
+              <li key={item.id}>
+                <div className="cart-image">
+                  <img src={item.image} alt={item.name} />
+                  <span>{item.name}</span>
+                  <select
+                    value={item.weight}
+                    onChange={(e) => handleWeightChange(item.id, e)}
+                  >
+                    {weightOptions.map((option, index) => (
+                      <option key={index} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    min="1"
+                    onChange={(e) => handleQuantityChange(item.id, e)}
+                  />
+                  <span>
+                    Price: ${calculatePrice(item).toFixed(2)}
+                  </span>
+                  <button onClick={() => handleRemoveFromCart(item.id)}>
+                    Remove
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="cartitems-down">
+            <div className="cartitems-total">
+              <h1>Cart total</h1>
               <div>
-                <img src={item.image} alt={item.name} />
-                <span>{item.name}</span>
-                <select
-                  value={item.weight}
-                  onChange={(e) => handleWeightChange(item.id, e)}
-                >
-                  {weightOptions.map((option, index) => (
-                    <option key={index} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  value={item.quantity}
-                  min="1"
-                  onChange={(e) => handleQuantityChange(item.id, e)}
-                />
-                <span>
-                  Price: ${calculatePrice(item).toFixed(2)}
-                </span>
-                <button onClick={() => handleRemoveFromCart(item.id)}>
-                  Remove
-                </button>
+                <div className="cartitems-total-item">
+                  <p>Subtotal</p>
+                  <p>${calculateSubtotal()}</p>
+                </div>
+                <hr />
+                <div className="cartitems-total-item">
+                  <p>Shipping Fee</p>
+                  <p>Free</p>
+                </div>
+                <hr />
+                <div className="cartitems-total-item">
+                  <h3>Total</h3>
+                  <h3>${calculateSubtotal()}</h3>
+                </div>
               </div>
-            </li>
-          ))}
-        </ul>
+              <button>PROCEED TO CHECKOUT</button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

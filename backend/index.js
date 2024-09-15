@@ -12,13 +12,13 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cors());
 
-// Connect to MongoDB using the environment variable
-mongoose.connect(process.env.MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+mongoose.connect(process.env.MONGODB_URL,{
+    serverSelectionTimeoutMS: 50000 // Default is 30,000 (30 seconds)
+
 })
     .then(() => console.log("Database connected successfully"))
     .catch(err => console.error("Database connection error:", err));
+
 
 // Static folder
 app.use('/images', express.static('upload/images'));
@@ -79,7 +79,7 @@ const Product = mongoose.model("Product", {
     }
 });
 
-// Endpoint to add a product
+// Endpoint to add a product with unique product IDs
 app.post('/addproduct', async (req, res) => {
     try {
         const { name, image, category, pricePerKg } = req.body;
@@ -87,15 +87,19 @@ app.post('/addproduct', async (req, res) => {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
+        // Fetch all products from the database
         let products = await Product.find({});
+
+        // Determine the new product ID by finding the highest existing ID
         let id;
         if (products.length > 0) {
             let last_product = products[products.length - 1];
-            id = last_product.id + 1;
+            id = last_product.id + 1; // Increment the last product's ID by 1
         } else {
-            id = 1;
+            id = 1; // If there are no products, start with ID 1
         }
 
+        // Create a new product with the generated ID
         const newProduct = new Product({
             id: id,
             name,
@@ -104,10 +108,14 @@ app.post('/addproduct', async (req, res) => {
             pricePerKg,
         });
 
+        // Save the new product to the database
         await newProduct.save();
+        
+        // Respond with a success message and the product name
         res.json({
             success: true,
             name,
+            id, // Returning the newly created product ID as well
         });
     } catch (err) {
         console.error("Error saving product:", err);
@@ -128,16 +136,27 @@ const Users = mongoose.model('Users', {
         type: String,
     },
     cartData: {
-        type: Object,
-        default: Date.now,
+        type: Object, // Cart data stored with product IDs as keys
+        default: {}
     },
     date: {
         type: Date,
         default: Date.now,
     }
 });
+const authenticateToken = (req, res, next) => {
+    const token = req.header('auth-token');
+    if (!token) return res.status(401).json({ success: false, message: 'Access Denied' });
 
-// Signup Endpoint
+    try {
+        const verified = jwt.verify(token, 'secret_ecom'); // Use your secret key
+        req.user = verified.user;
+        next();
+    } catch (err) {
+        res.status(400).json({ success: false, message: 'Invalid Token' });
+    }
+};
+
 app.post('/signup', async (req, res) => {
     try {
         // Check if the user already exists
@@ -240,9 +259,72 @@ app.get('/allproducts', async (req, res) => {
     }
 });
 
-app.post('/addtocart', async (req, res) => {
-    console.log(req.body);
-});
+
+
+
+
+const fetchUser = (req, res, next) => {
+    // Retrieve the token from the request header
+    const token = req.header('auth-token');
+    
+    // If token is not present, deny access
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Access Denied: No token provided' });
+    }
+
+    try {
+        // Verify the token using the secret key
+        const verified = jwt.verify(token, 'secret_ecom');
+        
+        // Attach the verified user to the request object
+        req.user = verified.user;
+        
+        // Proceed to the next middleware or route handler
+        next();
+    } catch (err) {
+        // If token verification fails, return an error
+        res.status(400).json({ success: false, message: 'Invalid Token' });
+    }
+};
+
+
+
+
+
+
+// Add to cart endpoint - updates cart data for authenticated users
+app.post('/addtocart', fetchUser, async (req, res) => {
+    try {
+      const userId = req.user.id; // Get the authenticated user's ID from the token
+      const { itemId } = req.body; // Item being added to the cart
+  
+      // Find the user by their ID
+      let userData = await Users.findOne({ _id: userId });
+      if (!userData) return res.status(404).json({ success: false, message: 'User not found' });
+  
+      // Increment the quantity of the item in the cart
+      if (!userData.cartData[itemId]) {
+        userData.cartData[itemId] = 1; // Initialize with quantity 1 if not already in the cart
+      } else {
+        userData.cartData[itemId] += 1; // Increment the quantity
+      }
+  
+      // Save the updated cart back to the database
+      const updatedUser = await Users.findOneAndUpdate(
+        { _id: userId }, // Find user by ID
+        { cartData: userData.cartData }, // Update cartData field
+        { new: true } // Return the updated document
+      );
+  
+      console.log('Updated cart:', updatedUser.cartData); // Log the updated cart for debugging
+      res.json({ success: true, message: 'Product added to cart', cart: updatedUser.cartData });
+  
+    } catch (err) {
+      console.error('Error updating cart:', err);
+      res.status(500).json({ success: false, message: 'Internal Server Error', error: err.message });
+    }
+  });
+  
 
 // Start the server
 app.listen(port, (error) => {

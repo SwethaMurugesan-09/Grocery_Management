@@ -6,9 +6,25 @@ const ShopProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [all_product, setAllProduct] = useState([]);
 
-  const addToCart = (product) => {
-    setCart((prevCart) => [...prevCart, product]);
+  const addToCart = (item) => {
+    setCart((prevCart) => {
+      // Check if the item is already in the cart
+      const itemInCart = prevCart.find(cartItem => cartItem.id === item.id);
+  
+      if (itemInCart) {
+        // If item exists in the cart, update its quantity
+        return prevCart.map(cartItem =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        // If item doesn't exist, add it to the cart with an initial quantity of 1
+        return [...prevCart, { ...item, quantity: 1 }];
+      }
+    });
   };
+  
 
   const updateCartItemWeight = (itemId, newWeight) => {
     setCart((prevCart) =>
@@ -29,6 +45,8 @@ const ShopProvider = ({ children }) => {
   const removeFromCart = (itemId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
   };
+
+  
 
   const fetchProducts = async (category) => {
     try {
