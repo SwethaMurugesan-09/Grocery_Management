@@ -1,4 +1,4 @@
-require('dotenv').config(); // Import and configure dotenv
+require('dotenv').config(); 
 const port = 5000;
 const express = require('express');
 const app = express();
@@ -8,19 +8,17 @@ const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
 
-// Middleware
 app.use(express.json());
 app.use(cors());
 
 mongoose.connect(process.env.MONGODB_URL,{
-    serverSelectionTimeoutMS: 50000 // Default is 30,000 (30 seconds)
+    serverSelectionTimeoutMS: 50000 
 
 })
     .then(() => console.log("Database connected successfully"))
     .catch(err => console.error("Database connection error:", err));
 
 
-// Static folder
 app.use('/images', express.static('upload/images'));
 
 // Image storage engine
@@ -49,10 +47,6 @@ app.post("/upload", upload.single('product'), (req, res) => {
 
 // Schema for creating products
 const Product = mongoose.model("Product", {
-    id: {
-        type: Number,
-        required: true
-    },
     name: {
         type: String,
         required: true
@@ -135,27 +129,17 @@ const Users = mongoose.model('Users', {
     password: {
         type: String,
     },
-    cartData: {
-        type: Object, // Cart data stored with product IDs as keys
-        default: {}
-    },
+    cartData: 
+        {
+            type: Map,         // Use a Map to store itemId: quantity pairs
+            of: Number,        // Values in the map are numbers (quantities)
+            default: {}, 
+        },
     date: {
         type: Date,
         default: Date.now,
     }
 });
-const authenticateToken = (req, res, next) => {
-    const token = req.header('auth-token');
-    if (!token) return res.status(401).json({ success: false, message: 'Access Denied' });
-
-    try {
-        const verified = jwt.verify(token, 'secret_ecom'); // Use your secret key
-        req.user = verified.user;
-        next();
-    } catch (err) {
-        res.status(400).json({ success: false, message: 'Invalid Token' });
-    }
-};
 
 app.post('/signup', async (req, res) => {
     try {
@@ -199,32 +183,25 @@ app.post('/signup', async (req, res) => {
 
 // Login Endpoint
 app.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        // Check if the user exists
-        const user = await Users.findOne({ email: email });
-        if (!user) {
-            return res.status(400).json({ success: false, errors: 'User does not exist. Please create an account.' });
+    let user = await Users.findOne({email:req.body.email});
+    if(user)
+    {
+        const passCompare=req.body.password===user.password;
+        if(passCompare){
+            const data={
+                user:{
+                    id:user.id
+                }
+            }
+            const token=jwt.sign(data,'secret_ecom');
+            res.json({success:true,token});
         }
-
-        // Check if the password matches
-        if (user.password !== password) {
-            return res.status(400).json({ success: false, errors: 'Incorrect password.' });
+        else{
+            res.json({success:false,errors:"Wrong Password"});
         }
-
-        // Create JWT token
-        const data = {
-            user: {
-                id: user.id,
-            },
-        };
-
-        const token = jwt.sign(data, 'secret_ecom');
-        res.status(200).json({ success: true, token });
-    } catch (err) {
-        console.error('Error during login:', err);
-        res.status(500).json({ success: false, message: 'Internal Server Error', error: err.message });
+    }
+    else{
+        res.json({success:false,error:"Wrong Email Id"})
     }
 });
 
@@ -240,6 +217,36 @@ app.post('/removeproduct', async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
+
+app.post('/updateproduct', async (req, res) => {
+    try {
+        const { id, name, pricePerKg, category } = req.body;
+        
+        // Ensure all required fields are provided
+        if (!id || !name || !pricePerKg || !category) {
+            return res.status(400).json({ success: false, message: "All fields are required" });
+        }
+
+        // Update the product using the MongoDB _id
+        const updatedProduct = await Product.findOneAndUpdate(
+            { _id: id }, // Use _id for query
+            { name, pricePerKg, category }, // Update these fields
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        res.json({ success: true, updatedProduct });
+    } catch (err) {
+        console.error("Error updating product:", err);
+        res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
+    }
+});
+
+
+
 
 // Get all products with optional category filter
 app.get('/allproducts', async (req, res) => {
@@ -259,74 +266,67 @@ app.get('/allproducts', async (req, res) => {
     }
 });
 
-
-
-
-
-const fetchUser = (req, res, next) => {
-    // Retrieve the token from the request header
+const fetchUser = async (req, res, next) => {
     const token = req.header('auth-token');
-    
-    // If token is not present, deny access
     if (!token) {
-        return res.status(401).json({ success: false, message: 'Access Denied: No token provided' });
+      return res.status(401).send({ errors: "Please authenticate using valid token" });
     }
-
     try {
-        // Verify the token using the secret key
-        const verified = jwt.verify(token, 'secret_ecom');
-        
-        // Attach the verified user to the request object
-        req.user = verified.user;
-        
-        // Proceed to the next middleware or route handler
-        next();
-    } catch (err) {
-        // If token verification fails, return an error
-        res.status(400).json({ success: false, message: 'Invalid Token' });
+      const data = jwt.verify(token, 'secret_ecom');
+      req.user = data.user;
+      next();
+    } catch (error) {
+      return res.status(401).send({ errors: "Please authenticate using valid token" });
     }
-};
-
-
-
-
-
-
-// Add to cart endpoint - updates cart data for authenticated users
+  };
+  
 app.post('/addtocart', fetchUser, async (req, res) => {
-    try {
-      const userId = req.user.id; // Get the authenticated user's ID from the token
-      const { itemId } = req.body; // Item being added to the cart
-  
-      // Find the user by their ID
-      let userData = await Users.findOne({ _id: userId });
-      if (!userData) return res.status(404).json({ success: false, message: 'User not found' });
-  
-      // Increment the quantity of the item in the cart
-      if (!userData.cartData[itemId]) {
-        userData.cartData[itemId] = 1; // Initialize with quantity 1 if not already in the cart
-      } else {
-        userData.cartData[itemId] += 1; // Increment the quantity
-      }
-  
-      // Save the updated cart back to the database
-      const updatedUser = await Users.findOneAndUpdate(
-        { _id: userId }, // Find user by ID
-        { cartData: userData.cartData }, // Update cartData field
-        { new: true } // Return the updated document
-      );
-  
-      console.log('Updated cart:', updatedUser.cartData); // Log the updated cart for debugging
-      res.json({ success: true, message: 'Product added to cart', cart: updatedUser.cartData });
-  
-    } catch (err) {
-      console.error('Error updating cart:', err);
-      res.status(500).json({ success: false, message: 'Internal Server Error', error: err.message });
-    }
-  });
-  
+    console.log(req.body, req.user);
 
-// Start the server
+    // Fetch user data from the database
+    let userData = await Users.findOne({ _id: req.user.id });
+    
+    if (!userData) {
+        return res.status(404).send({ error: "User not found" });
+    }
+
+    // Initialize cartData if it does not exist
+    if (!userData.cartData) {
+        userData.cartData = {};
+    }
+
+    // Add item to cart or increase quantity
+    userData.cartData[req.body.itemId.id] = {
+        ...req.body.itemId,
+        quantity: (userData.cartData[req.body.itemId.id]?.quantity || 0) + 1,
+    };
+
+    // Update the user with the new cartData and return the updated document
+    let updatedUser = await Users.findByIdAndUpdate(
+        { _id: req.user.id },
+        { $set: { cartData: userData.cartData } },
+        { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+        return res.status(500).send({ error: "Failed to update cart" });
+    }
+
+    res.send("Item added to cart");
+});
+
+
+app.post('/removfromcart',fetchUser,async(req,res)=>{
+    console.log(req.body,req.user)
+    let userData=await Users.findOne({_id:req.user.id});
+    if(userData.cartData[req.body.itemId]>0)
+    userData.cartData[req.body.itemId]-=1;
+    await Users.findByIdAndUpdate({_id:req.user.id},{cartData:userData.cartData});
+    res.send("Added")
+})
+
+
+
 app.listen(port, (error) => {
     if (!error) {
         console.log("Server running on port " + port);

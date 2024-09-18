@@ -30,10 +30,8 @@ const Navbar = () => {
           {menu === "dryfruits" && <hr />}
         </li>
       </div>
-      <div className="nav-cart">
-        <Link to="/cart"><button>Cart</button></Link>
-      </div>
       <div className="nav-login">
+        
         {localStorage.getItem('auth-token') ? (
           <button onClick={() => { localStorage.removeItem('auth-token'); window.location.replace('/'); }}>
             Logout
@@ -41,6 +39,7 @@ const Navbar = () => {
         ) : (
           <Link to="/login"><button>Login</button></Link>
         )}
+          <Link to="/cart"><button>Cart</button></Link>
       </div>
     </div>
   );

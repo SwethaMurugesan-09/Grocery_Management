@@ -7,9 +7,15 @@ const Shopcategory = ({ category }) => {
   const { all_product, fetchProducts, addToCart, updateCartItemQuantity } = useContext(Shopcontext);
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(20);
-  const [selectedWeight, setSelectedWeight] = useState({});
-  const [cartQuantities, setCartQuantities] = useState({});
-  const navigate = useNavigate(); // Use navigation for redirecting
+  const [selectedWeight, setSelectedWeight] = useState(() => {
+    // Load selected weights from localStorage if available
+    return JSON.parse(localStorage.getItem('selectedWeight')) || {};
+  });
+  const [cartQuantities, setCartQuantities] = useState(() => {
+    // Load cart quantities from localStorage if available
+    return JSON.parse(localStorage.getItem('cartQuantities')) || {};
+  });
+  const navigate = useNavigate();
 
   const weightOptions = [
     { label: '250 g', value: 0.25 },
@@ -21,6 +27,12 @@ const Shopcategory = ({ category }) => {
   useEffect(() => {
     fetchProducts(category);
   }, [category]);
+
+  useEffect(() => {
+    // Store cart quantities and selected weights in localStorage
+    localStorage.setItem('cartQuantities', JSON.stringify(cartQuantities));
+    localStorage.setItem('selectedWeight', JSON.stringify(selectedWeight));
+  }, [cartQuantities, selectedWeight]);
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
@@ -37,7 +49,7 @@ const Shopcategory = ({ category }) => {
 
   const handleAddToCart = (product) => {
     const authToken = localStorage.getItem('auth-token');
-    
+
     if (!authToken) {
       alert('You need to be logged in to add products to the cart.');
       navigate('/login');
@@ -94,6 +106,7 @@ const Shopcategory = ({ category }) => {
 
   return (
     <div className="shop-category">
+      <div className='search-container'>
       <input
         type="text"
         placeholder="Search products..."
@@ -101,7 +114,7 @@ const Shopcategory = ({ category }) => {
         onChange={handleSearch}
         className="search-input"
       />
-
+    </div>
       <div className="shopcategory-items">
         {filteredProducts.slice(0, visibleCount).map(product => (
           <div key={product._id} className="product-item">
@@ -120,7 +133,7 @@ const Shopcategory = ({ category }) => {
                 ))}
               </select>
             </div>
-                <div>Price:<span className="product-price">${(product.pricePerKg * (selectedWeight[product._id] || 1)).toFixed(2)}</span></div>
+            <div>Price:<span className="product-price">${(product.pricePerKg * (selectedWeight[product._id] || 1)).toFixed(2)}</span></div>
             {cartQuantities[product._id] ? (
               <div className="quantity-controls">
                 <button onClick={() => handleDecreaseQuantity(product._id)}>-</button>

@@ -8,7 +8,7 @@ const AddProduct = () => {
         name: "",
         image: "",
         category: "",
-        pricePerKg: "" // Ensure this is filled in the form
+        pricePerKg: "" 
     });    
     
     const [loading, setLoading] = useState(false);
@@ -55,10 +55,6 @@ const AddProduct = () => {
     
         }
     };
-    
-
-    
-
     return (
         <div className='addproduct'>
             {error && <p className='error'>{error}</p>}

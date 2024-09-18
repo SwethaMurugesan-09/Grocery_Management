@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import './CSS/login.css'; 
 const AuthPage = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [username, setUsername] = useState('');
@@ -25,10 +25,10 @@ const AuthPage = () => {
         .catch((error) => {
             console.error("Error during login:", error);
         });
-
         if (responseData && responseData.success) {
             localStorage.setItem('auth-token', responseData.token);
             window.location.replace("/");
+            console.log("Token in localStorage:", localStorage.getItem('auth-token'));
         } else {
             alert(responseData ? responseData.errors : "User does not exist. Please create an account.");
         }
@@ -64,33 +64,33 @@ const AuthPage = () => {
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.authContainer}>
+        <div className="container">
+            <div className="authContainer">
                 {isLogin ? (
                     <>
                         <h2>Login</h2>
                         <form onSubmit={handleLogin}>
-                            <div style={styles.inputGroup}>
+                            <div className="inputGroup">
                                 <label htmlFor="email">Email:</label>
                                 <input
                                     type="email"
                                     id="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    style={styles.input}
+                                    className="input"
                                 />
                             </div>
-                            <div style={styles.inputGroup}>
+                            <div className="inputGroup">
                                 <label htmlFor="password">Password:</label>
                                 <input
                                     type="password"
                                     id="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    style={styles.input}
+                                    className="input"
                                 />
                             </div>
-                            <button type="submit" style={styles.button}>Login</button>
+                            <button type="submit" className="button">Login</button>
                         </form>
                         <span>Don't have an account? <a href="#" onClick={() => setIsLogin(false)}>Sign up here</a></span>
                     </>
@@ -98,37 +98,37 @@ const AuthPage = () => {
                     <>
                         <h2>Sign Up</h2>
                         <form onSubmit={handleSignup}>
-                            <div style={styles.inputGroup}>
+                            <div className="inputGroup">
                                 <label htmlFor="username">Username:</label>
                                 <input
                                     type="text"
                                     id="username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    style={styles.input}
+                                    className="input"
                                 />
                             </div>
-                            <div style={styles.inputGroup}>
+                            <div className="inputGroup">
                                 <label htmlFor="email">Email:</label>
                                 <input
                                     type="email"
                                     id="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    style={styles.input}
+                                    className="input"
                                 />
                             </div>
-                            <div style={styles.inputGroup}>
+                            <div className="inputGroup">
                                 <label htmlFor="password">Password:</label>
                                 <input
                                     type="password"
                                     id="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    style={styles.input}
+                                    className="input"
                                 />
                             </div>
-                            <button type="submit" style={styles.button}>Sign Up</button>
+                            <button type="submit" className="button">Sign Up</button>
                         </form>
                         <span>Already have an account? <a href="#" onClick={() => setIsLogin(true)}>Login here</a></span>
                     </>
@@ -136,41 +136,6 @@ const AuthPage = () => {
             </div>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        backgroundColor: '#f2f2f2',
-    },
-    authContainer: {
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '5px',
-        boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-        width: '300px',
-        textAlign: 'center',
-    },
-    inputGroup: {
-        marginBottom: '15px',
-    },
-    input: {
-        width: '100%',
-        padding: '10px',
-        marginTop: '5px',
-        boxSizing: 'border-box',
-    },
-    button: {
-        padding: '10px 20px',
-        backgroundColor: '#4CAF50',
-        color: 'white',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-    },
 };
 
 export default AuthPage;
