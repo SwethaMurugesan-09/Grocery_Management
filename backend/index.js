@@ -129,12 +129,6 @@ const Users = mongoose.model('Users', {
     password: {
         type: String,
     },
-    cartData: 
-        {
-            type: Map,         // Use a Map to store itemId: quantity pairs
-            of: Number,        // Values in the map are numbers (quantities)
-            default: {}, 
-        },
     date: {
         type: Date,
         default: Date.now,
