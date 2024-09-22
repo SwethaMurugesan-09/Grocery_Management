@@ -1,20 +1,15 @@
 import React, { useContext, useState, useEffect } from 'react';
 import './CSS/Shopcategory.css';
-import { Shopcontext } from '../Context/Shopcontext'; // Adjust the import path
+import { Shopcontext } from '../Context/Shopcontext';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Shopcategory = ({ category }) => {
-  const { all_product, fetchProducts, addToCart, updateCartItemQuantity } = useContext(Shopcontext);
+  const { all_product, fetchProducts, addToCart, updateCartItemQuantity, removeFromCart: removeProductFromContext, cart } = useContext(Shopcontext);
   const [searchQuery, setSearchQuery] = useState('');
-  const [visibleCount, setVisibleCount] = useState(20);
   const [selectedWeight, setSelectedWeight] = useState(() => {
-    // Load selected weights from localStorage if available
     return JSON.parse(localStorage.getItem('selectedWeight')) || {};
   });
-  const [cartQuantities, setCartQuantities] = useState(() => {
-    // Load cart quantities from localStorage if available
-    return JSON.parse(localStorage.getItem('cartQuantities')) || {};
-  });
+  const [cartQuantities, setCartQuantities] = useState({});
   const navigate = useNavigate();
 
   const weightOptions = [
@@ -29,18 +24,15 @@ const Shopcategory = ({ category }) => {
   }, [category]);
 
   useEffect(() => {
-    // Store cart quantities and selected weights in localStorage
-    localStorage.setItem('cartQuantities', JSON.stringify(cartQuantities));
-    localStorage.setItem('selectedWeight', JSON.stringify(selectedWeight));
-  }, [cartQuantities, selectedWeight]);
+    const quantitiesFromCart = {};
+    cart.forEach((cartItem) => {
+      quantitiesFromCart[cartItem.id] = cartItem.quantity;
+    });
+    setCartQuantities(quantitiesFromCart);
+  }, [cart]);
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
-    setVisibleCount(20);
-  };
-
-  const handleShowMore = () => {
-    setVisibleCount((prevCount) => prevCount + 8);
   };
 
   const handleWeightChange = (productId, event) => {
@@ -66,13 +58,12 @@ const Shopcategory = ({ category }) => {
       quantity: 1,
     };
     addToCart(productToAdd);
-
-    // Update cart quantity for the added product
     setCartQuantities((prev) => ({ ...prev, [product._id]: 1 }));
   };
 
   const handleIncreaseQuantity = (productId) => {
     const newQuantity = (cartQuantities[productId] || 0) + 1;
+
     setCartQuantities((prev) => ({
       ...prev,
       [productId]: newQuantity,
@@ -83,17 +74,23 @@ const Shopcategory = ({ category }) => {
   const handleDecreaseQuantity = (productId) => {
     const newQuantity = (cartQuantities[productId] || 1) - 1;
     if (newQuantity < 1) {
-      setCartQuantities((prev) => {
-        const { [productId]: _, ...rest } = prev;
-        return rest;
-      });
+      removeFromCart(productId);
     } else {
       setCartQuantities((prev) => ({
         ...prev,
         [productId]: newQuantity,
       }));
+      updateCartItemQuantity(productId, newQuantity);
     }
-    updateCartItemQuantity(productId, newQuantity);
+  };
+
+  const removeFromCart = (productId) => {
+    setCartQuantities((prev) => {
+      const { [productId]: _, ...rest } = prev;
+      return rest;
+    });
+
+    removeProductFromContext(productId);
   };
 
   if (!all_product || all_product.length === 0) {
@@ -107,19 +104,18 @@ const Shopcategory = ({ category }) => {
   return (
     <div className="shop-category">
       <div className='search-container'>
-      <input
-        type="text"
-        placeholder="Search products..."
-        value={searchQuery}
-        onChange={handleSearch}
-        className="search-input"
-      />
-    </div>
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className="search-input"
+        />
+      </div>
       <div className="shopcategory-items">
-        {filteredProducts.slice(0, visibleCount).map(product => (
+        {filteredProducts.map(product => (
           <div key={product._id} className="product-item">
-              <img src={product.image} alt={product.name} className="product-image" />
-
+            <img src={product.image} alt={product.name} className="product-image" />
             <span className="product-name">{product.name}</span>
             <div className="product-details">
               <label htmlFor="weight">Select Weight:</label>
@@ -151,10 +147,6 @@ const Shopcategory = ({ category }) => {
           </div>
         ))}
       </div>
-
-      {visibleCount < filteredProducts.length && (
-        <button onClick={handleShowMore} className="show-more-button">Show More</button>
-      )}
     </div>
   );
 };

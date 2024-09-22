@@ -21,7 +21,6 @@ mongoose.connect(process.env.MONGODB_URL,{
 
 app.use('/images', express.static('upload/images'));
 
-// Image storage engine
 const storage = multer.diskStorage({
     destination: './upload/images',
     filename: (req, file, cb) => {
@@ -44,8 +43,6 @@ app.post("/upload", upload.single('product'), (req, res) => {
         image_url: `http://localhost:${port}/images/${req.file.filename}`
     });
 });
-
-// Schema for creating products
 const Product = mongoose.model("Product", {
     name: {
         type: String,
@@ -72,28 +69,21 @@ const Product = mongoose.model("Product", {
         default: Date.now,
     }
 });
-
-// Endpoint to add a product with unique product IDs
 app.post('/addproduct', async (req, res) => {
     try {
         const { name, image, category, pricePerKg } = req.body;
         if (!name || !image || !category || !pricePerKg) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
-
-        // Fetch all products from the database
         let products = await Product.find({});
 
-        // Determine the new product ID by finding the highest existing ID
         let id;
         if (products.length > 0) {
             let last_product = products[products.length - 1];
-            id = last_product.id + 1; // Increment the last product's ID by 1
+            id = last_product.id + 1; 
         } else {
-            id = 1; // If there are no products, start with ID 1
+            id = 1; 
         }
-
-        // Create a new product with the generated ID
         const newProduct = new Product({
             id: id,
             name,
@@ -101,23 +91,17 @@ app.post('/addproduct', async (req, res) => {
             category,
             pricePerKg,
         });
-
-        // Save the new product to the database
         await newProduct.save();
-        
-        // Respond with a success message and the product name
         res.json({
             success: true,
             name,
-            id, // Returning the newly created product ID as well
+            id,
         });
     } catch (err) {
         console.error("Error saving product:", err);
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
-
-// Users Schema
 const Users = mongoose.model('Users', {
     name: {
         type: String,
@@ -137,30 +121,17 @@ const Users = mongoose.model('Users', {
 
 app.post('/signup', async (req, res) => {
     try {
-        // Check if the user already exists
         let check = await Users.findOne({ email: req.body.email });
         if (check) {
             return res.status(400).json({ success: false, errors: 'User already exists' });
         }
-
-        // Create default cart data
-        let cart = {};
-        for (let i = 0; i < 300; i++) {
-            cart[i] = 0;
-        }
-
-        // Create new user
         const user = new Users({
             name: req.body.username,
             email: req.body.email,
             password: req.body.password,
             cartData: cart,
         });
-
-        // Save user to database
         await user.save();
-
-        // Create JWT token
         const data = {
             user: {
                 id: user.id,
@@ -174,8 +145,6 @@ app.post('/signup', async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal Server Error', error: err.message });
     }
 });
-
-// Login Endpoint
 app.post('/login', async (req, res) => {
     let user = await Users.findOne({email:req.body.email});
     if(user)
@@ -215,41 +184,30 @@ app.post('/removeproduct', async (req, res) => {
 app.post('/updateproduct', async (req, res) => {
     try {
         const { id, name, pricePerKg, category } = req.body;
-        
-        // Ensure all required fields are provided
-        if (!id || !name || !pricePerKg || !category) {
+                if (!id || !name || !pricePerKg || !category) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
-
-        // Update the product using the MongoDB _id
         const updatedProduct = await Product.findOneAndUpdate(
-            { _id: id }, // Use _id for query
-            { name, pricePerKg, category }, // Update these fields
-            { new: true } // Return the updated document
+            { _id: id },
+            { name, pricePerKg, category },
+            { new: true } 
         );
-
         if (!updatedProduct) {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
-
         res.json({ success: true, updatedProduct });
     } catch (err) {
         console.error("Error updating product:", err);
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
-
-
-
-
-// Get all products with optional category filter
 app.get('/allproducts', async (req, res) => {
     try {
-        const { category } = req.query; // Get category from query params
+        const { category } = req.query; 
         let query = {};
         
         if (category && category !== 'all') {
-            query.category = category; // Filter by category if provided
+            query.category = category;
         }
 
         let products = await Product.find(query);
@@ -259,68 +217,6 @@ app.get('/allproducts', async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
-
-const fetchUser = async (req, res, next) => {
-    const token = req.header('auth-token');
-    if (!token) {
-      return res.status(401).send({ errors: "Please authenticate using valid token" });
-    }
-    try {
-      const data = jwt.verify(token, 'secret_ecom');
-      req.user = data.user;
-      next();
-    } catch (error) {
-      return res.status(401).send({ errors: "Please authenticate using valid token" });
-    }
-  };
-  
-app.post('/addtocart', fetchUser, async (req, res) => {
-    console.log(req.body, req.user);
-
-    // Fetch user data from the database
-    let userData = await Users.findOne({ _id: req.user.id });
-    
-    if (!userData) {
-        return res.status(404).send({ error: "User not found" });
-    }
-
-    // Initialize cartData if it does not exist
-    if (!userData.cartData) {
-        userData.cartData = {};
-    }
-
-    // Add item to cart or increase quantity
-    userData.cartData[req.body.itemId.id] = {
-        ...req.body.itemId,
-        quantity: (userData.cartData[req.body.itemId.id]?.quantity || 0) + 1,
-    };
-
-    // Update the user with the new cartData and return the updated document
-    let updatedUser = await Users.findByIdAndUpdate(
-        { _id: req.user.id },
-        { $set: { cartData: userData.cartData } },
-        { new: true } // Return the updated document
-    );
-
-    if (!updatedUser) {
-        return res.status(500).send({ error: "Failed to update cart" });
-    }
-
-    res.send("Item added to cart");
-});
-
-
-app.post('/removfromcart',fetchUser,async(req,res)=>{
-    console.log(req.body,req.user)
-    let userData=await Users.findOne({_id:req.user.id});
-    if(userData.cartData[req.body.itemId]>0)
-    userData.cartData[req.body.itemId]-=1;
-    await Users.findByIdAndUpdate({_id:req.user.id},{cartData:userData.cartData});
-    res.send("Added")
-})
-
-
-
 app.listen(port, (error) => {
     if (!error) {
         console.log("Server running on port " + port);

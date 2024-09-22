@@ -27,8 +27,8 @@ const AuthPage = () => {
         });
         if (responseData && responseData.success) {
             localStorage.setItem('auth-token', responseData.token);
-            window.location.replace("/");
             console.log("Token in localStorage:", localStorage.getItem('auth-token'));
+            window.location.replace("/");
         } else {
             alert(responseData ? responseData.errors : "User does not exist. Please create an account.");
         }

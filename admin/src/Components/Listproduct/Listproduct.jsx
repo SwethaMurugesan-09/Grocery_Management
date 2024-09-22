@@ -3,9 +3,9 @@ import './Listproduct.css';
 
 const Listproduct = () => {
   const [allProducts, setAllProducts] = useState([]);
-  const [editingProductId, setEditingProductId] = useState(null); // Track which product is being edited
-  const [editProductDetails, setEditProductDetails] = useState({}); // Handle inline edit state
-  const [searchTerm, setSearchTerm] = useState(''); // Track search term
+  const [editingProductId, setEditingProductId] = useState(null); 
+  const [editProductDetails, setEditProductDetails] = useState({}); 
+  const [searchTerm, setSearchTerm] = useState(''); 
 
   const fetchInfo = async () => {
     try {
@@ -31,7 +31,7 @@ const Listproduct = () => {
         },
         body: JSON.stringify({ id }),
       });
-      await fetchInfo(); // Refresh the product list after deletion
+      await fetchInfo(); 
     } catch (error) {
       console.error('Error removing product:', error);
     }
@@ -39,30 +39,22 @@ const Listproduct = () => {
 
   const updateProduct = async (productId) => {
     try {
-      const productDetails = editProductDetails[productId]; // Extract product details for the specific product ID
-
-      // Ensure required fields are present
+      const productDetails = editProductDetails[productId]; 
       const updatedProductData = {
-        id: productId, // Use MongoDB's _id field
+        id: productId, 
         name: productDetails.name,
         pricePerKg: productDetails.pricePerKg,
-        category: productDetails.category || 'defaultCategory', // Add a default category if not provided
+        category: productDetails.category || 'defaultCategory',
       };
-
-      // Make the API call
       await fetch('http://localhost:5000/updateproduct', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedProductData), // Send updated product data
+        body: JSON.stringify(updatedProductData), 
       });
-
-      // Refresh the product list after update
       await fetchInfo();
-
-      // Clear editing state after updating
       setEditingProductId(null);
     } catch (error) {
       console.error('Error updating product:', error);
@@ -87,8 +79,6 @@ const Listproduct = () => {
       [productId]: product,
     }));
   };
-
-  // Filter the products based on the search term
   const filteredProducts = allProducts.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -102,7 +92,7 @@ const Listproduct = () => {
           type="text"
           placeholder="search products..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)} // Update the search term state
+          onChange={(e) => setSearchTerm(e.target.value)} 
           className="search-input"
         />
       </div>
@@ -132,13 +122,13 @@ const Listproduct = () => {
                     <input
                       type="text"
                       name="name"
-                      value={editProductDetails[product._id]?.name || ''} // Always use state during editing
+                      value={editProductDetails[product._id]?.name || ''} 
                       onChange={(e) => handleEditChange(e, product._id)}
                     />
                     <input
                       type="text"
                       name="pricePerKg"
-                      value={editProductDetails[product._id]?.pricePerKg || ''} // Always use state during editing
+                      value={editProductDetails[product._id]?.pricePerKg || ''} 
                       onChange={(e) => handleEditChange(e, product._id)}
                     />
                     <select
@@ -146,7 +136,7 @@ const Listproduct = () => {
                       value={
                         editProductDetails[product._id]?.category ||
                         'defaultCategory'
-                      } // Always use state during editing
+                      }
                       onChange={(e) => handleEditChange(e, product._id)}
                     >
                       <option value="vegetables">Vegetables</option>
@@ -165,8 +155,6 @@ const Listproduct = () => {
                     <p>{product.name}</p>
                     <p>${product.pricePerKg}</p>
                     <p>{product.category}</p>
-
-                    {/* Edit button */}
                     <button
                       onClick={() => startEditing(product._id, product)}
                       className="listproduct-btn"
@@ -175,8 +163,6 @@ const Listproduct = () => {
                     </button>
                   </>
                 )}
-
-                {/* Remove button */}
                 <button
                   onClick={() => removeProduct(product._id)}
                   className="listproduct-btn"
@@ -188,7 +174,7 @@ const Listproduct = () => {
             </React.Fragment>
           ))
         ) : (
-          <p>No products found</p> // Display this when no product matches the search term
+          <p>No products found</p> 
         )}
       </div>
     </div>

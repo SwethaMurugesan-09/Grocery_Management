@@ -19,16 +19,21 @@ const CartPage = () => {
 
   const handleWeightChange = (itemId, event) => {
     const newWeight = parseFloat(event.target.value);
-    updateCartItemWeight(itemId, newWeight);
+    if (!isNaN(newWeight)) {
+      updateCartItemWeight(itemId, newWeight);
+    }
   };
 
   const handleQuantityChange = (itemId, event) => {
     const newQuantity = parseInt(event.target.value, 10);
-    updateCartItemQuantity(itemId, newQuantity);
+    if (!isNaN(newQuantity) && newQuantity > 0) {
+      updateCartItemQuantity(itemId, newQuantity);
+    }
   };
 
   const handleRemoveFromCart = (itemId) => {
-    const confirmed = window.confirm("Are you sure you want to remove this product from the cart?");
+    console.log(`Trying to remove item with ID: ${itemId}`);
+    const confirmed = window.confirm('Are you sure you want to remove this product from the cart?');
     if (confirmed) {
       removeFromCart(itemId);
     }
@@ -73,12 +78,8 @@ const CartPage = () => {
                     min="1"
                     onChange={(e) => handleQuantityChange(item.id, e)}
                   />
-                  <span>
-                    Price: ${calculatePrice(item).toFixed(2)}
-                  </span>
-                  <button onClick={() => handleRemoveFromCart(item.id)}>
-                    Remove
-                  </button>
+                  <span>Price: ${calculatePrice(item).toFixed(2)}</span>
+                  <button onClick={() => handleRemoveFromCart(item.id)}>Remove</button>
                 </div>
               </li>
             ))}
