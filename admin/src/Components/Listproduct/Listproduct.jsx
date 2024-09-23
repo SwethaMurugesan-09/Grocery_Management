@@ -22,20 +22,27 @@ const Listproduct = () => {
   }, []);
 
   const removeProduct = async (id) => {
-    try {
-      await fetch('http://localhost:5000/removeproduct', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id }),
-      });
-      await fetchInfo(); 
-    } catch (error) {
-      console.error('Error removing product:', error);
+    const confirmDeletion = window.confirm("Are you sure you want to delete the product?");
+    
+    if (confirmDeletion) {
+      try {
+        await fetch('http://localhost:5000/removeproduct', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id }), 
+        });
+        await fetchInfo(); 
+      } catch (error) {
+        console.error('Error removing product:', error);
+      }
+    } else {
+      console.log("Product deletion canceled.");
     }
   };
+  
 
   const updateProduct = async (productId) => {
     try {

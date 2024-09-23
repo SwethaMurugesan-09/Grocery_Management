@@ -170,16 +170,20 @@ app.post('/login', async (req, res) => {
 
 app.post('/removeproduct', async (req, res) => {
     try {
-        await Product.findOneAndDelete({ id: req.body.id });
-        res.json({
-            success: true,
-            message: "Product removed successfully"
-        });
+      const deletedProduct = await Product.findOneAndDelete({ _id: req.body.id }); 
+      if (!deletedProduct) {
+        return res.status(404).json({ success: false, message: "Product not found" });
+      }
+      res.json({
+        success: true,
+        message: "Product removed successfully"
+      });
     } catch (err) {
-        console.error("Error removing product:", err);
-        res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
+      console.error("Error removing product:", err);
+      res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
-});
+  });
+  
 
 app.post('/updateproduct', async (req, res) => {
     try {

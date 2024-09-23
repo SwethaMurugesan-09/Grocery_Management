@@ -35,8 +35,8 @@
 }
 
 .cart-image img {
-  width: 250px;
-  height: 150px;
+  width: 200px;
+  height: 100px;
   object-fit: cover;
   border-radius: 8px;
   margin-right: 50px;
