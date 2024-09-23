@@ -35,13 +35,17 @@
 }
 
 .cart-image img {
-  width: 200px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-right: 50px;
+    max-width: 150px;
+    max-height: 150px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-right: 50px;
 }
-
+.cart-pages{
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+}
 .cart-image span {
   font-size: 1.1rem;
   font-weight: bold;

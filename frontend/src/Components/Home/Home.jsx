@@ -148,7 +148,7 @@ const Hero = () => {
                   </select>
                 </div>
                 <span className="product-price">
-                  Price: ${(item.pricePerKg * (selectedWeight[item._id] || 1)).toFixed(2)}
+                  Price: ₹{(item.pricePerKg * (selectedWeight[item._id] || 1)).toFixed(2)}
                 </span>
                 {cartQuantities[item._id] ? (
                   <div className="quantity-controls">

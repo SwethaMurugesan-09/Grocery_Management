@@ -129,7 +129,7 @@ const Shopcategory = ({ category }) => {
                 ))}
               </select>
             </div>
-            <div>Price:<span className="product-price">${(product.pricePerKg * (selectedWeight[product._id] || 1)).toFixed(2)}</span></div>
+            <div>Price:<span className="product-price">₹{(product.pricePerKg * (selectedWeight[product._id] || 1)).toFixed(2)}</span></div>
             {cartQuantities[product._id] ? (
               <div className="quantity-controls">
                 <button onClick={() => handleDecreaseQuantity(product._id)}>-</button>
