@@ -113,6 +113,10 @@ const Users = mongoose.model('Users', {
     password: {
         type: String,
     },
+    cartData: {
+        type: Array,  
+        default: [],  
+    },
     date: {
         type: Date,
         default: Date.now,
@@ -125,13 +129,17 @@ app.post('/signup', async (req, res) => {
         if (check) {
             return res.status(400).json({ success: false, errors: 'User already exists' });
         }
+        const cart = [];
+
         const user = new Users({
             name: req.body.username,
             email: req.body.email,
             password: req.body.password,
             cartData: cart,
         });
+
         await user.save();
+
         const data = {
             user: {
                 id: user.id,
@@ -145,6 +153,7 @@ app.post('/signup', async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal Server Error', error: err.message });
     }
 });
+
 app.post('/login', async (req, res) => {
     let user = await Users.findOne({email:req.body.email});
     if(user)
