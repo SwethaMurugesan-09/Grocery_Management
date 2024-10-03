@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../Assets/logo.avif';  // Or '../Assets/logo.avif' if that's the correct folder name
+import logo from '../Assets/logo.avif';  
 import './Navbar.css';
 
 const Navbar = () => {
@@ -10,7 +10,7 @@ const Navbar = () => {
     <div className="navbar">
       <div className="nav">
         <img src={logo} alt="Logo" /> 
-        <p>Grocery Management</p>
+        <p>Freshmart</p>
       </div>
       <div className="nav-menu">
         <li onClick={() => setMenu("shop")}>

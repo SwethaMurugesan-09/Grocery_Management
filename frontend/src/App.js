@@ -1,5 +1,6 @@
 import React from 'react';
 import Navbar from './Components/Navbar/Navbar';
+import Footer from './Components/Footer/Footer';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Shopcategory from './Pages/Shopcategory';
 import Cart from './Pages/Cart';
@@ -21,6 +22,7 @@ function App() {
           <Route path='/cart' element={<Cart />}/>
           <Route path='/login' element={<Login />}/>
       </Routes>
+      <Footer />
       </BrowserRouter>
 
     </div>
