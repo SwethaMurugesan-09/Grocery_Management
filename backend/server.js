@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const paypal = require('paypal-rest-sdk');
 
 app.use(express.json());
 app.use(cors());
@@ -18,6 +19,15 @@ mongoose.connect(process.env.MONGODB_URL,{
     .then(() => console.log("Database connected successfully"))
     .catch(err => console.error("Database connection error:", err));
 
+
+
+    paypal.configure({
+        'mode': 'sandbox', // or 'live' for production
+        'client_id': process.env.PAYPAL_CLIENT_ID,  // Use environment variables for security
+        'client_secret': process.env.PAYPAL_CLIENT_SECRET
+      });      
+
+      
 
 app.use('/images', express.static('upload/images'));
 
@@ -230,6 +240,86 @@ app.get('/allproducts', async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
+
+
+
+// app.post('/pay', (req, res) => {
+//     const { cartItems } = req.body; // Receive the cart items from frontend
+    
+//     // Calculate total from cartItems
+//     const totalAmount = cartItems.reduce((total, item) => {
+//       return total + (item.pricePerKg * item.quantity * item.weight);
+//     }, 0).toFixed(2);
+  
+//     const create_payment_json = {
+//       "intent": "sale",
+//       "payer": {
+//         "payment_method": "paypal"
+//       },
+//       "redirect_urls": {
+//         "return_url": "http://localhost:5000/success",
+//         "cancel_url": "http://localhost:5000/cancel"
+//       },
+//       "transactions": [{
+//         "item_list": {
+//           "items": cartItems.map(item => ({
+//             "name": item.name,
+//             "sku": item.id.toString(),
+//             "price": (item.pricePerKg * item.weight).toFixed(2), // Price per item
+//             "currency": "USD",
+//             "quantity": item.quantity
+//           }))
+//         },
+//         "amount": {
+//           "currency": "USD",
+//           "total": totalAmount // Total calculated from cart items
+//         },
+//         "description": "Your purchase from our shop."
+//       }]
+//     };
+  
+//     paypal.payment.create(create_payment_json, function (error, payment) {
+//       if (error) {
+//         throw error;
+//       } else {
+//         for (let i = 0; i < payment.links.length; i++) {
+//           if (payment.links[i].rel === 'approval_url') {
+//             return res.json({ forwardLink: payment.links[i].href }); // Send PayPal link back to frontend
+//           }
+//         }
+//       }
+//     });
+//   });
+  
+  
+//   app.get('/success', (req, res) => {
+//     const payerId = req.query.PayerID;
+//     const paymentId = req.query.paymentId;
+  
+//     const execute_payment_json = {
+//       "payer_id": payerId,
+//       "transactions": [{
+//         "amount": {
+//           "currency": "USD",
+//           "total": "10.00" // Replace this with the total from the payment session
+//         }
+//       }]
+//     };
+  
+//     paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+//       if (error) {
+//         console.log(error.response);
+//         res.status(500).send('Payment execution failed');
+//       } else {
+//         console.log(JSON.stringify(payment));
+//         res.redirect('http://localhost:3000/order-confirmation'); // Or any page you want to redirect to
+//       }
+//     });
+//   });
+  
+
+
+
 app.listen(port, (error) => {
     if (!error) {
         console.log("Server running on port " + port);

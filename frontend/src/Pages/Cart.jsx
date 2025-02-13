@@ -32,7 +32,6 @@ const CartPage = () => {
   };
 
   const handleRemoveFromCart = (itemId) => {
-    console.log(`Trying to remove item with ID: ${itemId}`);
     const confirmed = window.confirm('Are you sure you want to remove this product from the cart?');
     if (confirmed) {
       removeFromCart(itemId);
@@ -49,13 +48,34 @@ const CartPage = () => {
     return cart.reduce((acc, item) => acc + calculatePrice(item), 0).toFixed(2);
   };
 
+  const handleProceedToCheckout = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/pay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cartItems: cart }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.forwardLink) {
+        window.location.href = data.forwardLink; // Redirect to PayPal approval page
+      }
+    } catch (error) {
+      console.error('Error processing PayPal checkout:', error);
+    }
+  };
+    
+
   return (
     <div className="cart-page">
       <h1>Your Cart</h1>
       {cart.length === 0 ? (
-       <div className="empty-cart-message">
-       <p>The Cart is empty</p>
-     </div>     
+        <div className="empty-cart-message">
+          <p>The Cart is empty</p>
+        </div>
       ) : (
         <>
           <ul className="cart-pages">
@@ -106,7 +126,7 @@ const CartPage = () => {
                   <h3>${calculateSubtotal()}</h3>
                 </div>
               </div>
-              <button>PROCEED TO CHECKOUT</button>
+              <button onClick={handleProceedToCheckout}>PROCEED TO CHECKOUT</button>
             </div>
           </div>
         </>
