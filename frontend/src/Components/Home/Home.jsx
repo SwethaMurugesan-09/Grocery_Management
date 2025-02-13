@@ -22,7 +22,7 @@ const Hero = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/allproducts');
+        const response = await fetch('https://grocery-management-backend.vercel.app/allproducts');
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }
