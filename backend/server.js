@@ -241,22 +241,13 @@ app.post('/updateproduct', async (req, res) => {
 });
 app.get('/allproducts', async (req, res) => {
     try {
-        const { category } = req.query; 
-        let query = {};
-        
-        if (category && category !== 'all') {
-            query.category = category;
-        }
-
-        let products = await Product.find(query);
+        const products = await Product.find({});
         res.json(products);
     } catch (err) {
         console.error("Error fetching products:", err);
-        res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
-
-
 
 // app.post('/pay', (req, res) => {
 //     const { cartItems } = req.body; // Receive the cart items from frontend
