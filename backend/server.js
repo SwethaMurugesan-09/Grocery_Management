@@ -7,7 +7,9 @@ const jwt = require('jsonwebtoken');
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
-const paypal = require('paypal-rest-sdk');
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+// const paypal = require('paypal-rest-sdk');
+const cloudinary = require("cloudinary").v2; 
 
 app.use(express.json());
 app.use(cors());
@@ -21,38 +23,51 @@ mongoose.connect(process.env.MONGODB_URL,{
 
 
 
-    paypal.configure({
-        'mode': 'sandbox', // or 'live' for production
-        'client_id': process.env.PAYPAL_CLIENT_ID,  // Use environment variables for security
-        'client_secret': process.env.PAYPAL_CLIENT_SECRET
-      });      
+    // paypal.configure({
+    //     'mode': 'sandbox', // or 'live' for production
+    //     'client_id': process.env.PAYPAL_CLIENT_ID,  // Use environment variables for security
+    //     'client_secret': process.env.PAYPAL_CLIENT_SECRET
+    //   });      
 
       
 
 app.use('/images', express.static('upload/images'));
 
-const storage = multer.diskStorage({
-    destination: './upload/images',
-    filename: (req, file, cb) => {
-        return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`);
-    }
-});
-
 app.get("/", (req, res) => {
     res.send("Express app is running");
 });
 
+
+cloudinary.config({ 
+    cloud_name: process.env.CLOUDINARY_NAME, 
+    api_key: process.env.CLOUDINARY_API_KEY, 
+    api_secret: process.env.CLOUDINARY_SECRET_KEY
+});
+
+// Multer Storage for Cloudinary
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: "uploads",  // Cloudinary folder name
+        format: async (req, file) => "png",  // Format can be png, jpg, etc.
+        public_id: (req, file) => `${file.fieldname}_${Date.now()}`,
+    },
+});
+
 const upload = multer({ storage: storage });
+
 
 app.post("/upload", upload.single('product'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ success: 0, message: "No file uploaded" });
     }
+    
     res.json({
         success: 1,
-        image_url: `http://localhost:${port}/images/${req.file.filename}`
+        image_url: req.file.path  // Cloudinary URL
     });
 });
+
 const Product = mongoose.model("Product", {
     name: {
         type: String,
