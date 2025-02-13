@@ -12,7 +12,7 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2; 
 
 app.use(express.json());
-app.use(cors({ origin: "*" })); 
+app.use(cors());
 
 mongoose.connect(process.env.MONGODB_URL,{
     serverSelectionTimeoutMS: 50000 
@@ -241,13 +241,22 @@ app.post('/updateproduct', async (req, res) => {
 });
 app.get('/allproducts', async (req, res) => {
     try {
-        const products = await Product.find({});
+        const { category } = req.query; 
+        let query = {};
+        
+        if (category && category !== 'all') {
+            query.category = category;
+        }
+
+        let products = await Product.find(query);
         res.json(products);
     } catch (err) {
         console.error("Error fetching products:", err);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+        res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 });
+
+
 
 // app.post('/pay', (req, res) => {
 //     const { cartItems } = req.body; // Receive the cart items from frontend
