@@ -6,13 +6,14 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const multer = require("multer");
 const path = require("path");
-const cors = require("cors");
+const cors = require('cors');
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 // const paypal = require('paypal-rest-sdk');
 const cloudinary = require("cloudinary").v2; 
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: 'https://freshmart-ebon.vercel.app' }));
+
 
 mongoose.connect(process.env.MONGODB_URL,{
     serverSelectionTimeoutMS: 50000 
