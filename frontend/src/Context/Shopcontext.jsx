@@ -5,51 +5,47 @@ export const Shopcontext = createContext();
 const ShopProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [all_product, setAllProduct] = useState([]);
+
+
   const getUserIdFromToken = (token) => {
+    if (!token) {
+      console.error("No auth token found!");
+      return null;
+    }
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.user?.id; 
+      const payload = JSON.parse(atob(token.split('.')[1])); // Decode token
+      return payload?.user?.id || null; // Ensure user ID exists
     } catch (error) {
-      console.error('Error parsing auth token:', error);
+      console.error("Error parsing auth token:", error);
       return null;
     }
   };
+  
 
   useEffect(() => {
-    const fetchCartOnLogin = () => {
-      const token = localStorage.getItem("authToken");
+  const fetchCartOnLogin = () => {
+    const token = localStorage.getItem("authToken");
+    const userId = getUserIdFromToken(token);
 
-      if (!token) {
-          console.error("No auth token found!");
-      } else {
-          try {
-              const decodedPayload = JSON.parse(atob(token.split(".")[1])); // Decode token
-              const userId = decodedPayload.user.id; // Extract user ID
-              console.log("Retrieved User ID from token:", userId);
-          } catch (error) {
-              console.error("Error parsing auth token:", error);
-          }
-      }
-            const userId = getUserIdFromToken(token); 
-      console.log('Retrieved User ID from token:');
+    console.log("Retrieved User ID from token:", userId);
 
-      if (userId) {
-        const cartKey = `cart_${userId}`; 
-        const savedCart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        console.log(`Trying to load cart from localStorage with key:`, savedCart);
-        setCart(savedCart);
-      } else {
-        console.error('No user ID found. Cart will not be loaded.');
-      }
-    };
+    if (userId) {
+      const cartKey = `cart_${userId}`;
+      const savedCart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      console.log(`Trying to load cart from localStorage with key:`, savedCart);
+      setCart(savedCart);
+    } else {
+      console.error("No user ID found. Cart will not be loaded.");
+    }
+  };
 
-    fetchCartOnLogin();
+  fetchCartOnLogin();
+  window.addEventListener("storage", fetchCartOnLogin);
+  return () => {
+    window.removeEventListener("storage", fetchCartOnLogin);
+  };
+}, []);
 
-    window.addEventListener('storage', fetchCartOnLogin); 
-    return () => {
-      window.removeEventListener('storage', fetchCartOnLogin);
-    };
-  }, []);
 
   const addToCart = (item) => {
     const token = localStorage.getItem('auth-token');
