@@ -12,7 +12,7 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2; 
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "*" })); 
 
 mongoose.connect(process.env.MONGODB_URL,{
     serverSelectionTimeoutMS: 50000 

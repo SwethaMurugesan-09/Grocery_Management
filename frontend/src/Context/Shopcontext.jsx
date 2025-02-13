@@ -9,17 +9,18 @@ const ShopProvider = ({ children }) => {
 
   const getUserIdFromToken = (token) => {
     if (!token) {
-      console.error("No auth token found!");
+      console.warn("No auth token found!");
       return null;
     }
     try {
-      const payload = JSON.parse(atob(token.split('.')[1])); // Decode token
-      return payload?.user?.id || null; // Ensure user ID exists
+      const payload = JSON.parse(atob(token.split('.')[1])); 
+      return payload?.user?.id || null; 
     } catch (error) {
       console.error("Error parsing auth token:", error);
       return null;
     }
   };
+  
   
 
   useEffect(() => {
