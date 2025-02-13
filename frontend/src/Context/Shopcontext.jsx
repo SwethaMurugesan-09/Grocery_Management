@@ -3,6 +3,8 @@ import React, { createContext, useState, useEffect } from 'react';
 export const Shopcontext = createContext();
 
 const ShopProvider = ({ children }) => {
+
+  const API_BASE_URL = 'https://grocery-management-backend.vercel.app'; 
   const [cart, setCart] = useState([]);
   const [all_product, setAllProduct] = useState([]);
 
@@ -115,9 +117,13 @@ const ShopProvider = ({ children }) => {
     });
   };
 
+
   const fetchProducts = async (category) => {
     try {
-      const url = category ? `http://localhost:5000/allproducts?category=${category}` : 'https://grocery-management-backend.vercel.app/allproducts';
+      const url = category
+        ? `${API_BASE_URL}/allproducts?category=${category}`
+        : `${API_BASE_URL}/allproducts`;
+        
       const response = await fetch(url);
       const data = await response.json();
       setAllProduct(data);
@@ -125,6 +131,7 @@ const ShopProvider = ({ children }) => {
       console.error('Error fetching products:', error);
     }
   };
+  
 
   useEffect(() => {
     fetchProducts(); 
