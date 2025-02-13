@@ -17,8 +17,20 @@ const ShopProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchCartOnLogin = () => {
-      const token = localStorage.getItem('auth-token'); 
-      const userId = getUserIdFromToken(token); 
+      const token = localStorage.getItem("authToken");
+
+      if (!token) {
+          console.error("No auth token found!");
+      } else {
+          try {
+              const decodedPayload = JSON.parse(atob(token.split(".")[1])); // Decode token
+              const userId = decodedPayload.user.id; // Extract user ID
+              console.log("Retrieved User ID from token:", userId);
+          } catch (error) {
+              console.error("Error parsing auth token:", error);
+          }
+      }
+            const userId = getUserIdFromToken(token); 
       console.log('Retrieved User ID from token:');
 
       if (userId) {
